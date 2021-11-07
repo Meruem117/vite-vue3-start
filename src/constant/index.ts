@@ -6,6 +6,7 @@ export const ROLES = {
     admin: 'admin',
     user: 'user'
 }
+export const USER_LIST_SIZE = 10
 export const DEFAULT_LOCATION = '暂无'
 // video
 export const VIDEO_LIST_SIZE = 30
