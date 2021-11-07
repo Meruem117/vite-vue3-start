@@ -4,7 +4,7 @@
             <a-form-item label="Username" v-bind="validateInfos.name">
                 <a-input
                     v-model:value="modelRef.name"
-                    @blur="validate('name', { trigger: 'blur' }).catch(() => { })"
+                    @blur="validate('name', { trigger: 'blur' })"
                 />
             </a-form-item>
             <a-form-item label="Password" v-bind="validateInfos.password">
@@ -12,7 +12,7 @@
                     v-model:value="modelRef.password"
                     type="password"
                     autocomplete="off"
-                    @blur="validate('password', { trigger: 'blur' }).catch(() => { })"
+                    @blur="validate('password', { trigger: 'blur' })"
                 />
             </a-form-item>
             <a-form-item :wrapper-col="{ span: 15, offset: 5 }">

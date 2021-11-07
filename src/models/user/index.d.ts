@@ -1,8 +1,13 @@
 export interface userItem {
     id?: number,
     name?: string,
-    gender?: string,
+    role?: string,
     location?: string,
     birthday?: string,
-    role?: string
+    gender?: string
+}
+
+export interface userCheckItem {
+    name: string,
+    password: string,
 }
