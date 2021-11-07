@@ -8,13 +8,14 @@ export interface userItem {
 }
 
 export interface userDetailItem {
-    id: number,
+    id?: number,
     name: string,
     password: string,
-    role: string,
+    role?: string,
     location: string,
     birthday: string,
-    gender: string
+    gender: string,
+    created?: string
 }
 
 export interface userCheckItem {
