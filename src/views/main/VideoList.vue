@@ -52,7 +52,7 @@
                     </div>
                     <!-- 信息 -->
                     <p
-                        class="h-16 text-base overflow-hidden mt-2 hover:text-blue-400 cursor-pointer video-title"
+                        class="h-20 text-base overflow-hidden mt-2 hover:text-blue-400 cursor-pointer video-title"
                         :title="video.title"
                         @click="toVideo(video.bvid)"
                     >{{ video.title }}</p>
