@@ -36,7 +36,7 @@
             <a-date-picker
                 v-model:value="formState.birthday"
                 placeholder="Please pick your birthday"
-                style="width: 100%"
+                class="w-full"
             />
         </a-form-item>
         <a-form-item label="Gender">
@@ -47,7 +47,7 @@
         </a-form-item>
         <a-form-item :wrapper-col="{ span: 15, offset: 5 }">
             <a-button type="primary" @click="onSubmit">Create</a-button>
-            <a-button style="margin-left: 10px" @click="resetForm">Reset</a-button>
+            <a-button class="ml-2" @click="resetForm">Reset</a-button>
         </a-form-item>
     </a-form>
 </template>
@@ -59,7 +59,7 @@ import { key } from '@/store/store'
 import { notification } from 'ant-design-vue'
 import { RuleObject, ValidateErrorEntity } from 'ant-design-vue/es/form/interface'
 import axios from 'axios'
-import * as moment from 'moment'
+import moment from 'moment'
 
 const store = useStore(key)
 

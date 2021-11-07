@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { userItem, userCheckItem } from '@/models/user'
+import { userItem, userDetailItem, userCheckItem } from '@/models/user'
 import { USER_LIST_SIZE } from '@/constant'
 
 export async function getUsers(start: number, size: number = USER_LIST_SIZE): Promise<userItem[]> {
@@ -22,7 +22,22 @@ export async function getUserByName(name: string): Promise<userItem> {
   return response.data
 }
 
-export async function checkUser(user: userCheckItem): Promise<userItem> {
+export async function checkUser(user: userCheckItem): Promise<boolean> {
   const response = await axios.post('/api/user/check', user)
+  return response.data
+}
+
+export async function addUser(user: userDetailItem): Promise<number> {
+  const response = await axios.post('/api/user/add', user)
+  return response.data
+}
+
+export async function updateUser(user: userDetailItem): Promise<number> {
+  const response = await axios.post('/api/user/update', user)
+  return response.data
+}
+
+export async function deleteUser(id: number): Promise<number> {
+  const response = await axios.post('/api/user/delete', id)
   return response.data
 }

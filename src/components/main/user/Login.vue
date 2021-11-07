@@ -27,9 +27,9 @@
 import { reactive } from 'vue'
 import { useStore } from 'vuex'
 import { key } from '@/store/store'
-import axios from 'axios'
-import { notification } from 'ant-design-vue'
-import { Form } from 'ant-design-vue'
+import { Form, notification } from 'ant-design-vue'
+import { } from '@/models/user'
+import { checkUser, getUserByName } from '@/services/user'
 
 const store = useStore(key)
 const useForm = Form.useForm
@@ -39,10 +39,10 @@ const modelRef = reactive({
     res: '',
     user: {
         name: '',
-        gender: '',
+        role: '',
         location: '',
         birthday: '',
-        role: ''
+        gender: '',
     }
 })
 const rulesRef = reactive({
@@ -60,55 +60,33 @@ const rulesRef = reactive({
     ]
 })
 const { resetFields, validate, validateInfos } = useForm(modelRef, rulesRef)
-const onSubmit = (): void => {
+
+function onSubmit(): void {
     validate()
-        .then(() => {
-            checkUser(modelRef.name).then(() => {
-                if (modelRef.res === modelRef.password) {
-                    store.commit('isLogin', true)
-                    store.commit('showModel', false)
-                    getUserInfo(modelRef.name).then(() => {
-                        store.commit('getUserInfo', modelRef.user)
-                    })
-                    notification.open({
-                        message: 'Notification',
-                        placement: 'topLeft',
-                        description:
-                            `Welcome ${modelRef.name}`,
-                        duration: 5
-                    })
-                    resetFields()
-                } else {
-                    notification.open({
-                        message: 'Notification',
-                        placement: 'topLeft',
-                        description:
-                            'Login failed, wrong password or username',
-                        duration: 5
-                    })
-                }
-            })
+        .then(async () => {
+            const result: boolean = await checkUser({ name: modelRef.name, password: modelRef.password })
+            if (result === true) {
+                store.commit('isLogin', true)
+                store.commit('showModel', false)
+                getUserByName(modelRef.name).then(res => store.commit('getUserInfo', res))
+                notification.open({
+                    message: 'Notification',
+                    placement: 'topLeft',
+                    description:
+                        `Welcome ${modelRef.name}`,
+                    duration: 5
+                })
+                resetFields()
+            } else {
+                notification.open({
+                    message: 'Notification',
+                    placement: 'topLeft',
+                    description:
+                        'Login failed, wrong password or username',
+                    duration: 5
+                })
+            }
         })
-        .catch(err => {
-            console.error('error', err)
-        })
-}
-
-async function checkUser(name: string): Promise<void> {
-    try {
-        const response = await axios.get(`/api/checkUser?name=${name}`)
-        modelRef.res = response.data
-    } catch (error) {
-        console.error(error)
-    }
-}
-
-async function getUserInfo(name: string): Promise<void> {
-    try {
-        const response = await axios.get(`/api/getUserByName?name=${name}`)
-        modelRef.user = response.data
-    } catch (error) {
-        console.error(error)
-    }
+        .catch(err => console.error(err))
 }
 </script>

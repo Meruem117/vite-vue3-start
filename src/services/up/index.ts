@@ -14,17 +14,17 @@ export async function getAllUps(): Promise<upItem[]> {
 
 export async function addUp(up: upItem): Promise<number> {
     const response = await axios.post('/api/up/add', up)
-    return response.data.id
+    return response.data
 }
 
 export async function updateUp(up: upItem): Promise<number> {
     const response = await axios.post('/api/up/update', up)
-    return response.data.id
+    return response.data
 }
 
 export async function deleteUp(id: number): Promise<number> {
     const response = await axios.post('/api/up/delete', id)
-    return response.data.id
+    return response.data
 }
 
 export async function getUpInfo(mid: string): Promise<upInfoItem> {
