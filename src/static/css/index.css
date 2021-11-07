@@ -1,0 +1,17 @@
+/*! @import */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.mainContent {
+    @apply flex;
+    @apply h-screen;
+    @apply p-16;
+}
+
+.adminContent {
+    @apply flex;
+    @apply ml-72;
+    @apply pt-20;
+    @apply px-5;
+}
