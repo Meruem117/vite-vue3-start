@@ -30,7 +30,7 @@
         </a-form-item>
         <a-form-item label="Location">
             <a-cascader
-                v-model:value="formState.location"
+                v-model:value="formState.rawLocation"
                 :options="valueCity"
                 placeholder="Please select your location"
             />
@@ -67,6 +67,7 @@ import { addUser, userExistByName } from '@/services/user'
 
 interface FormState extends userDetailItem {
     checkPassword: string,
+    rawLocation: string,
     rawBirthday: Moment | null
 }
 
@@ -79,6 +80,7 @@ const formState: FormState = reactive({
     checkPassword: '',
     role: 'user',
     location: '暂无',
+    rawLocation: '',
     birthday: '暂无',
     rawBirthday: null,
     gender: '暂无',
@@ -160,19 +162,20 @@ function resetForm(): void {
 
 function handleFinish(values: FormState): void {
     const user = Object.assign(formState, values)
+    user.location = user.rawLocation[0] + ' ' + user.rawLocation[1]
     user.birthday = user.rawBirthday!.format(dateFormat)
     addUser(user).then(id => {
         store.commit('isLogin', true)
         store.commit('showModel', false)
-        const user: userItem = {
+        const userItem: userItem = {
             id,
             name: formState.name,
             role: formState.role,
-            location: formState.location[0] + ' ' + formState.location[1],
+            location: formState.location,
             birthday: formState.birthday,
             gender: formState.gender,
         }
-        store.commit('getUserInfo', user)
+        store.commit('getUserInfo', userItem)
         notification.open({
             message: 'Notification',
             placement: 'topLeft',
