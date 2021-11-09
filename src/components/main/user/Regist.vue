@@ -1,12 +1,15 @@
 <template>
     <a-form
+        name="regist-form"
         ref="formRef"
         :model="formState"
         :rules="rules"
         :label-col="{ span: 5 }"
         :wrapper-col="{ span: 15 }"
+        @finish="handleFinish"
+        @finishFailed="handleFinishFailed"
     >
-        <a-form-item ref="name" label="Username" name="name">
+        <a-form-item has-feedback label="Username" name="name">
             <a-input v-model:value="formState.name" placeholder="Please input your username" />
         </a-form-item>
         <a-form-item required has-feedback label="Password" name="password">
@@ -46,7 +49,7 @@
             </a-radio-group>
         </a-form-item>
         <a-form-item :wrapper-col="{ span: 15, offset: 5 }">
-            <a-button type="primary" @click="onSubmit">Create</a-button>
+            <a-button type="primary" html-type="submit">Submit</a-button>
             <a-button class="ml-2" @click="resetForm">Reset</a-button>
         </a-form-item>
     </a-form>
@@ -58,7 +61,7 @@ import { useStore } from 'vuex'
 import { key } from '@/store/store'
 import moment from 'moment'
 import { notification } from 'ant-design-vue'
-import { RuleObject } from 'ant-design-vue/es/form/interface'
+import { RuleObject, ValidateErrorEntity } from 'ant-design-vue/es/form/interface'
 import { userItem, userDetailItem } from '@/models/user'
 import { addUser } from '@/services/user'
 
@@ -116,7 +119,7 @@ async function validatePassword(rule: RuleObject, value: string): Promise<void> 
         return Promise.reject('Please input the password')
     } else {
         if (formState.checkPassword !== '') {
-            formRef.value.validateField('checkPassword')
+            formRef.value.validateFields('checkPassword')
         }
         return Promise.resolve()
     }
@@ -132,31 +135,35 @@ async function validateCheckPassword(rule: RuleObject, value: string): Promise<v
     }
 }
 
+function handleFinish(values: FormState): void {
+    console.log(values, formState);
+}
+
+function handleFinishFailed(errors: ValidateErrorEntity<FormState>): void {
+    console.error(errors)
+}
+
 function onSubmit(): void {
-    formRef.value
-        .validate()
-        .then(() => {
-            addUser(formState)
-                .then(res => {
-                    store.commit('isLogin', true)
-                    store.commit('showModel', false)
-                    const user: userItem = {
-                        id: res,
-                        name: formState.name,
-                        role: 'user',
-                        location: formState.location[0] + ' ' + formState.location[1],
-                        birthday: moment(formState.birthday).format('YYYY-MM-DD'),
-                        gender: formState.gender,
-                    }
-                    store.commit('getUserInfo', user)
-                    notification.open({
-                        message: 'Notification',
-                        placement: 'topLeft',
-                        description:
-                            `Welcome ${formState.name} !`,
-                        duration: 5
-                    })
-                })
+    addUser(formState)
+        .then(res => {
+            store.commit('isLogin', true)
+            store.commit('showModel', false)
+            const user: userItem = {
+                id: res,
+                name: formState.name,
+                role: 'user',
+                location: formState.location[0] + ' ' + formState.location[1],
+                birthday: moment(formState.birthday).format('YYYY-MM-DD'),
+                gender: formState.gender,
+            }
+            store.commit('getUserInfo', user)
+            notification.open({
+                message: 'Notification',
+                placement: 'topLeft',
+                description:
+                    `Welcome ${formState.name} !`,
+                duration: 5
+            })
         })
 }
 

@@ -34,7 +34,7 @@
             <div class="grid grid-cols-5 gap-5">
                 <div
                     v-for="video in state.videos[state.current - 1]"
-                    class="flex flex-col flex-nowrap flex-auto h-60"
+                    class="flex flex-col flex-nowrap flex-auto h-64"
                 >
                     <!-- 封面 -->
                     <div

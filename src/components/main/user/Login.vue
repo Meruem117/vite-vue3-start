@@ -71,8 +71,7 @@ function onSubmit(): void {
                 notification.open({
                     message: 'Notification',
                     placement: 'topLeft',
-                    description:
-                        `Welcome ${modelRef.name}`,
+                    description: `Welcome ${modelRef.name}`,
                     duration: 5
                 })
                 resetFields()
@@ -80,8 +79,7 @@ function onSubmit(): void {
                 notification.open({
                     message: 'Notification',
                     placement: 'topLeft',
-                    description:
-                        'Login failed, wrong password or username',
+                    description: 'Login failed, wrong password or username',
                     duration: 5
                 })
             }
