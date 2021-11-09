@@ -63,7 +63,7 @@ import { notification } from 'ant-design-vue'
 import { RuleObject, ValidateErrorEntity } from 'ant-design-vue/es/form/interface'
 import { Moment } from 'moment'
 import { userItem, userDetailItem } from '@/models/user'
-import { addUser } from '@/services/user'
+import { addUser, userExistByName } from '@/services/user'
 
 interface FormState extends userDetailItem {
     checkPassword: string,
@@ -85,15 +85,17 @@ const formState: FormState = reactive({
 })
 const rules = {
     name: [
-        { required: true, message: 'Please input username', trigger: 'blur' },
-        { min: 2, max: 15, message: 'Length should be 2 to 15', trigger: 'blur' },
+        { validator: validateUsername, required: true, trigger: 'change' },
+        { min: 2, max: 15, message: 'Length should be 2 to 15', trigger: 'change' }
     ],
     password: [
         { validator: validatePassword, required: true, trigger: 'change' },
-        { min: 6, max: 24, message: 'Length should be 6 to 24', trigger: 'change' }],
+        { min: 6, max: 24, message: 'Length should be 6 to 24', trigger: 'change' }
+    ],
     checkPassword: [
         { validator: validateCheckPassword, required: true, trigger: 'change' },
-        { min: 6, max: 24, message: 'Length should be 6 to 24', trigger: 'change' }],
+        { min: 6, max: 24, message: 'Length should be 6 to 24', trigger: 'change' }
+    ],
 }
 const valueCity = [
     {
@@ -118,9 +120,22 @@ const valueCity = [
     }
 ]
 
+async function validateUsername(rule: RuleObject, value: string): Promise<void> {
+    if (value === '') {
+        return Promise.reject('Please input your username')
+    } else {
+        const res = await userExistByName(value)
+        if (res) {
+            return Promise.reject('Username already exists')
+        } else {
+            return Promise.resolve()
+        }
+    }
+}
+
 async function validatePassword(rule: RuleObject, value: string): Promise<void> {
     if (value === '') {
-        return Promise.reject('Please input the password')
+        return Promise.reject('Please input your password')
     } else {
         if (formState.checkPassword !== '') {
             formRef.value.validateFields('checkPassword')
@@ -131,7 +146,7 @@ async function validatePassword(rule: RuleObject, value: string): Promise<void> 
 
 async function validateCheckPassword(rule: RuleObject, value: string): Promise<void> {
     if (value === '') {
-        return Promise.reject('Please input the password again')
+        return Promise.reject('Please input your password again')
     } else if (value !== formState.password) {
         return Promise.reject("Two inputs don't match!")
     } else {
@@ -146,7 +161,6 @@ function resetForm(): void {
 function handleFinish(values: FormState): void {
     const user = Object.assign(formState, values)
     user.birthday = user.rawBirthday!.format(dateFormat)
-    console.log(user.birthday)
     addUser(user).then(id => {
         store.commit('isLogin', true)
         store.commit('showModel', false)

@@ -22,6 +22,11 @@ export async function getUserByName(name: string): Promise<userDetailItem> {
   return response.data
 }
 
+export async function userExistByName(name: string): Promise<boolean> {
+  const response = await axios.get('/api/user/exist', { params: { name } })
+  return response.data
+}
+
 export async function checkUser(user: userCheckItem): Promise<boolean> {
   const response = await axios.post('/api/user/check', user)
   return response.data
