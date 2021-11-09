@@ -37,7 +37,7 @@
         </a-form-item>
         <a-form-item label="Birthday">
             <a-date-picker
-                v-model:value="formState.birthday"
+                v-model:value="formState.rawBirthday"
                 placeholder="Please pick your birthday"
                 class="w-full"
             />
@@ -59,25 +59,29 @@
 import { reactive, ref } from 'vue'
 import { useStore } from 'vuex'
 import { key } from '@/store/store'
-import moment from 'moment'
 import { notification } from 'ant-design-vue'
 import { RuleObject, ValidateErrorEntity } from 'ant-design-vue/es/form/interface'
+import { Moment } from 'moment'
 import { userItem, userDetailItem } from '@/models/user'
 import { addUser } from '@/services/user'
 
 interface FormState extends userDetailItem {
-    checkPassword: string
+    checkPassword: string,
+    rawBirthday: Moment | null
 }
 
 const store = useStore(key)
 const formRef = ref()
+const dateFormat = 'YYYY-MM-DD'
 const formState: FormState = reactive({
     name: '',
     password: '',
     checkPassword: '',
-    location: '',
-    birthday: '',
-    gender: '',
+    role: 'user',
+    location: '暂无',
+    birthday: '暂无',
+    rawBirthday: null,
+    gender: '暂无',
 })
 const rules = {
     name: [
@@ -135,39 +139,36 @@ async function validateCheckPassword(rule: RuleObject, value: string): Promise<v
     }
 }
 
+function resetForm(): void {
+    formRef.value.resetFields()
+}
+
 function handleFinish(values: FormState): void {
-    console.log(values, formState);
+    const user = Object.assign(formState, values)
+    user.birthday = user.rawBirthday!.format(dateFormat)
+    console.log(user.birthday)
+    addUser(user).then(id => {
+        store.commit('isLogin', true)
+        store.commit('showModel', false)
+        const user: userItem = {
+            id,
+            name: formState.name,
+            role: formState.role,
+            location: formState.location[0] + ' ' + formState.location[1],
+            birthday: formState.birthday,
+            gender: formState.gender,
+        }
+        store.commit('getUserInfo', user)
+        notification.open({
+            message: 'Notification',
+            placement: 'topLeft',
+            description: `Welcome ${formState.name} !`,
+            duration: 5
+        })
+    })
 }
 
 function handleFinishFailed(errors: ValidateErrorEntity<FormState>): void {
     console.error(errors)
-}
-
-function onSubmit(): void {
-    addUser(formState)
-        .then(res => {
-            store.commit('isLogin', true)
-            store.commit('showModel', false)
-            const user: userItem = {
-                id: res,
-                name: formState.name,
-                role: 'user',
-                location: formState.location[0] + ' ' + formState.location[1],
-                birthday: moment(formState.birthday).format('YYYY-MM-DD'),
-                gender: formState.gender,
-            }
-            store.commit('getUserInfo', user)
-            notification.open({
-                message: 'Notification',
-                placement: 'topLeft',
-                description:
-                    `Welcome ${formState.name} !`,
-                duration: 5
-            })
-        })
-}
-
-function resetForm(): void {
-    formRef.value.resetFields()
 }
 </script>

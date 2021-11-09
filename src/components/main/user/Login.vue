@@ -1,26 +1,21 @@
 <template>
-    <div>
-        <a-form :label-col="{ span: 5 }" :wrapper-col="{ span: 15 }">
-            <a-form-item label="Username" v-bind="validateInfos.name">
-                <a-input
-                    v-model:value="modelRef.name"
-                    @blur="validate('name', { trigger: 'blur' })"
-                />
-            </a-form-item>
-            <a-form-item label="Password" v-bind="validateInfos.password">
-                <a-input
-                    v-model:value="modelRef.password"
-                    type="password"
-                    autocomplete="off"
-                    @blur="validate('password', { trigger: 'blur' })"
-                />
-            </a-form-item>
-            <a-form-item :wrapper-col="{ span: 15, offset: 5 }">
-                <a-button type="primary" @click.prevent="onSubmit">Login</a-button>
-                <a-button style="margin-left: 10px" @click="resetFields">Reset</a-button>
-            </a-form-item>
-        </a-form>
-    </div>
+    <a-form :label-col="{ span: 5 }" :wrapper-col="{ span: 15 }">
+        <a-form-item label="Username" v-bind="validateInfos.name">
+            <a-input v-model:value="modelRef.name" @blur="validate('name', { trigger: 'blur' })" />
+        </a-form-item>
+        <a-form-item label="Password" v-bind="validateInfos.password">
+            <a-input
+                v-model:value="modelRef.password"
+                type="password"
+                autocomplete="off"
+                @blur="validate('password', { trigger: 'blur' })"
+            />
+        </a-form-item>
+        <a-form-item :wrapper-col="{ span: 15, offset: 5 }">
+            <a-button type="primary" @click.prevent="onSubmit">Login</a-button>
+            <a-button style="margin-left: 10px" @click="resetFields">Reset</a-button>
+        </a-form-item>
+    </a-form>
 </template>
 
 <script setup lang="ts">
