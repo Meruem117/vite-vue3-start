@@ -35,8 +35,7 @@ import { AntDesignOutlined, ReadOutlined, ContainerOutlined, ApiOutlined } from 
 defineProps({
     current: {
         type: Array as () => Array<string>,
-        required: true,
-        default: () => []
+        required: false
     }
 })
 </script>

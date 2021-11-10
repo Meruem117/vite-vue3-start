@@ -1,7 +1,7 @@
 <template>
     <Nav :current="['space']" />
     <div class="w-full flex flex-col px-5 pt-24 pb-4 justify-center">
-        <a-list item-layout="horizontal" :data-source="state.upList" class="w-5/6">
+        <a-list item-layout="horizontal" :data-source="state.upList">
             <template #renderItem="{ item }">
                 <a-list-item>
                     <a-list-item-meta :description="item.Official.title">

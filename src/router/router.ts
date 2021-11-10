@@ -52,7 +52,16 @@ const router = createRouter({
                 { path: 'mcharts', name: 'admin/mcharts', component: () => import('../views/admin/MCharts.vue') },
                 { path: 'hcharts', name: 'admin/hcharts', component: () => import('../views/admin/HCharts.vue') }
             ]
-        }
+        },
+        {
+            path: '/404',
+            name: '404',
+            component: () => import('@/views/main/404.vue')
+        },
+        // {
+        //     path: '*',
+        //     redirect: '/404'
+        // }
     ]
 })
 
