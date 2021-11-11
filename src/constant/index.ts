@@ -8,6 +8,31 @@ export const ROLES = {
 }
 export const USER_LIST_SIZE = 10
 export const DEFAULT_LOCATION = '暂无'
+export const DEFAULT_BIRTHDAY = '暂无'
+export const DEFAULT_GENDER = '暂无'
+export const DEFAULT_DATE_FORMAT = 'YYYY-MM-DD'
+export const CITY_LIST = [
+    {
+        value: '浙江',
+        label: '浙江',
+        children: [
+            {
+                value: '杭州',
+                label: '杭州'
+            },
+        ]
+    },
+    {
+        value: '江苏',
+        label: '江苏',
+        children: [
+            {
+                value: '南京',
+                label: '南京'
+            },
+        ]
+    }
+]
 // video
 export const VIDEO_LIST_SIZE = 30
 export const IMAGE_URL_PREFIX = 'https://images.weserv.nl/?url='

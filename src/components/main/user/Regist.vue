@@ -31,7 +31,7 @@
         <a-form-item label="Location">
             <a-cascader
                 v-model:value="formState.rawLocation"
-                :options="valueCity"
+                :options="cityOptions"
                 placeholder="Please select your location"
             />
         </a-form-item>
@@ -64,6 +64,7 @@ import { RuleObject, ValidateErrorEntity } from 'ant-design-vue/es/form/interfac
 import { Moment } from 'moment'
 import { userDetailItem } from '@/models/user'
 import { addUser, userExistByName } from '@/services/user'
+import { ROLES, DEFAULT_LOCATION, DEFAULT_BIRTHDAY, DEFAULT_GENDER, DEFAULT_DATE_FORMAT, CITY_LIST } from '@/constant'
 
 interface FormState extends userDetailItem {
     checkPassword: string,
@@ -73,17 +74,16 @@ interface FormState extends userDetailItem {
 
 const store = useStore(key)
 const formRef = ref()
-const dateFormat = 'YYYY-MM-DD'
 const formState: FormState = reactive({
     name: '',
     password: '',
     checkPassword: '',
-    role: 'user',
-    location: '暂无',
+    role: ROLES.user,
+    location: DEFAULT_LOCATION,
     rawLocation: '',
-    birthday: '暂无',
+    birthday: DEFAULT_BIRTHDAY,
     rawBirthday: null,
-    gender: '暂无',
+    gender: DEFAULT_GENDER,
 })
 const rules = {
     name: [
@@ -99,28 +99,7 @@ const rules = {
         { min: 6, max: 24, message: 'Length should be 6 to 24', trigger: 'change' }
     ],
 }
-const valueCity = [
-    {
-        value: '浙江',
-        label: '浙江',
-        children: [
-            {
-                value: '杭州',
-                label: '杭州'
-            },
-        ]
-    },
-    {
-        value: '江苏',
-        label: '江苏',
-        children: [
-            {
-                value: '南京',
-                label: '南京'
-            },
-        ]
-    }
-]
+const cityOptions = CITY_LIST
 
 async function validateUsername(rule: RuleObject, value: string): Promise<void> {
     if (value === '') {
@@ -163,7 +142,7 @@ function resetForm(): void {
 async function handleFinish(values: FormState): Promise<void> {
     const user = Object.assign(formState, values)
     user.location = user.rawLocation[0] + ' ' + user.rawLocation[1]
-    user.birthday = user.rawBirthday!.format(dateFormat)
+    user.birthday = user.rawBirthday!.format(DEFAULT_DATE_FORMAT)
     const id = await addUser(user)
     store.commit('isLogin', true)
     store.commit('showModel', false)

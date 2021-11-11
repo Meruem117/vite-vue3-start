@@ -29,15 +29,7 @@ const store = useStore(key)
 const useForm = Form.useForm
 const modelRef = reactive({
     name: '',
-    password: '',
-    res: '',
-    user: {
-        name: '',
-        role: '',
-        location: '',
-        birthday: '',
-        gender: '',
-    }
+    password: ''
 })
 const rulesRef = reactive({
     name: [
