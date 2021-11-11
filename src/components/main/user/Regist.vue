@@ -62,7 +62,7 @@ import { key } from '@/store/store'
 import { notification } from 'ant-design-vue'
 import { RuleObject, ValidateErrorEntity } from 'ant-design-vue/es/form/interface'
 import { Moment } from 'moment'
-import { userItem, userDetailItem } from '@/models/user'
+import { userDetailItem } from '@/models/user'
 import { addUser, userExistByName } from '@/services/user'
 
 interface FormState extends userDetailItem {
@@ -160,28 +160,19 @@ function resetForm(): void {
     formRef.value.resetFields()
 }
 
-function handleFinish(values: FormState): void {
+async function handleFinish(values: FormState): Promise<void> {
     const user = Object.assign(formState, values)
     user.location = user.rawLocation[0] + ' ' + user.rawLocation[1]
     user.birthday = user.rawBirthday!.format(dateFormat)
-    addUser(user).then(id => {
-        store.commit('isLogin', true)
-        store.commit('showModel', false)
-        const userItem: userItem = {
-            id,
-            name: formState.name,
-            role: formState.role,
-            location: formState.location,
-            birthday: formState.birthday,
-            gender: formState.gender,
-        }
-        store.commit('getUserInfo', userItem)
-        notification.open({
-            message: 'Notification',
-            placement: 'topLeft',
-            description: `Welcome ${formState.name} !`,
-            duration: 5
-        })
+    const id = await addUser(user)
+    store.commit('isLogin', true)
+    store.commit('showModel', false)
+    store.commit('getUserInfo', { ...user, id })
+    notification.open({
+        message: 'Notification',
+        placement: 'topLeft',
+        description: `Welcome ${formState.name} !`,
+        duration: 5
     })
 }
 

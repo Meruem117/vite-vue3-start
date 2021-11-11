@@ -62,7 +62,8 @@ function onSubmit(): void {
             if (result === true) {
                 store.commit('isLogin', true)
                 store.commit('showModel', false)
-                getUserByName(modelRef.name).then(res => store.commit('getUserInfo', res))
+                const user = await getUserByName(modelRef.name)
+                store.commit('getUserInfo', user)
                 notification.open({
                     message: 'Notification',
                     placement: 'topLeft',
