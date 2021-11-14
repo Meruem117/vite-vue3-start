@@ -57,7 +57,7 @@
             :onOk="handleShowRegist"
             class="registModal"
         >
-            <Regist />
+            <Regist @closeModal="closeModal" />
         </a-modal>
         <!-- 登录 -->
         <a-modal
@@ -70,7 +70,7 @@
             :onOk="handleShowRegist"
             class="loginModal"
         >
-            <Login />
+            <Login @closeModal="closeModal" />
         </a-modal>
     </div>
 </template>

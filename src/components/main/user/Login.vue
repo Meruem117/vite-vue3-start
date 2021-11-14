@@ -1,5 +1,5 @@
 <template>
-    <a-form :label-col="{ span: 5 }" :wrapper-col="{ span: 15 }">
+    <a-form name="login-form" :label-col="{ span: 5 }" :wrapper-col="{ span: 15 }">
         <a-form-item label="Username" v-bind="validateInfos.name">
             <a-input v-model:value="modelRef.name" @blur="validate('name', { trigger: 'blur' })" />
         </a-form-item>
@@ -26,6 +26,7 @@ import { Form, notification } from 'ant-design-vue'
 import { checkUser, getUserByName } from '@/services/user'
 
 const store = useStore(key)
+const emit = defineEmits(['closeModal'])
 const modelRef = reactive({
     name: '',
     password: ''
@@ -52,10 +53,10 @@ function onSubmit(): void {
         .then(async () => {
             const result: boolean = await checkUser({ name: modelRef.name, password: modelRef.password })
             if (result === true) {
-                store.commit('isLogin', true)
-                store.commit('showModel', false)
                 const user = await getUserByName(modelRef.name)
                 store.commit('getUserInfo', user)
+                store.commit('isLogin', true)
+                emit('closeModal')
                 notification.open({
                     message: 'Notification',
                     placement: 'topLeft',
