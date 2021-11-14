@@ -46,24 +46,11 @@
                 v-else
             >{{ store.state.user.name }}</div>
         </a-popover>
-        <!-- 登录 -->
-        <a-modal
-            title="Login"
-            v-model:visible="store.state.isVisible"
-            v-if="store.state.showRegist === false"
-            keyboard="true"
-            okType="link"
-            okText="Regist"
-            :onOk="handleShowRegist"
-            class="loginModal"
-        >
-            <Login />
-        </a-modal>
         <!-- 注册 -->
         <a-modal
             title="Regist"
-            v-model:visible="store.state.isVisible"
-            v-else
+            v-model:visible="state.showModal"
+            v-if="state.showRegist"
             keyboard="true"
             okType="link"
             okText="Login"
@@ -72,10 +59,24 @@
         >
             <Regist />
         </a-modal>
+        <!-- 登录 -->
+        <a-modal
+            title="Login"
+            v-model:visible="state.showModal"
+            v-else
+            keyboard="true"
+            okType="link"
+            okText="Regist"
+            :onOk="handleShowRegist"
+            class="loginModal"
+        >
+            <Login />
+        </a-modal>
     </div>
 </template>
 
 <script setup lang="ts">
+import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { key } from '@/store/store'
@@ -86,25 +87,26 @@ import Regist from '@/components/main/user/Regist.vue'
 
 const router = useRouter()
 const store = useStore(key)
+const state = reactive({
+    showModal: false,
+    showRegist: false,
+})
 
 function showModal(): void {
-    if (store.state.isLogin === false) {
-        store.commit('showModel', true)
-    } else {
-        router.push({
-            name: 'myspace',
-            params: { id: store.state.user.id }
-        })
-    }
+    state.showModal = true
+}
+
+function closeModal(): void {
+    state.showModal = false
+    state.showRegist = false
 }
 
 function handleShowRegist(): void {
-    store.commit('showRegist', !store.state.showRegist)
+    state.showRegist = !state.showRegist
 }
 
 function logout(): void {
     store.commit('isLogin', false)
-    store.commit('showRegist', false)
     store.commit('clearUserInfo')
 }
 

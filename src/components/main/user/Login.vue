@@ -26,7 +26,6 @@ import { Form, notification } from 'ant-design-vue'
 import { checkUser, getUserByName } from '@/services/user'
 
 const store = useStore(key)
-const useForm = Form.useForm
 const modelRef = reactive({
     name: '',
     password: ''
@@ -45,6 +44,7 @@ const rulesRef = reactive({
         }
     ]
 })
+const useForm = Form.useForm
 const { resetFields, validate, validateInfos } = useForm(modelRef, rulesRef)
 
 function onSubmit(): void {
