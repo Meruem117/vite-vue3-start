@@ -14,7 +14,3 @@ export function convertTime(tm: number): string {
     const date: number = d.getDate()
     return d.getFullYear() === y ? month + '-' + date : year + '-' + month + '-' + date
 }
-
-export function convertGender(gender: string): string {
-    return gender === 'male' ? '男' : '女'
-}

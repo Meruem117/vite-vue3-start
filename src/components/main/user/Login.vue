@@ -54,7 +54,7 @@ function onSubmit(): void {
             const result: boolean = await checkUser({ name: modelRef.name, password: modelRef.password })
             if (result === true) {
                 const user = await getUserByName(modelRef.name)
-                store.commit('getUserInfo', user)
+                store.commit('getUser', user)
                 store.commit('isLogin', true)
                 emit('closeModal')
                 notification.open({

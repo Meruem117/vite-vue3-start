@@ -145,7 +145,7 @@ async function handleFinish(values: FormState): Promise<void> {
     user.location = user.rawLocation[0] + ' ' + user.rawLocation[1]
     user.birthday = user.rawBirthday!.format(DEFAULT_DATE_FORMAT)
     const id = await addUser(user)
-    store.commit('getUserInfo', { ...user, id })
+    store.commit('getUser', { ...user, id })
     store.commit('isLogin', true)
     emit('closeModal')
     notification.open({

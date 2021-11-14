@@ -4,26 +4,20 @@
     >
         <div class="-ml-6">个人资料</div>
         <div class="flex">
-            <div class="text-lg text-gray-400 w-1/6">用户名:</div>
-            <div>{{ store.state.user.name }}</div>
+            <div class="column">用户名:</div>
+            <div class="inline">{{ user.name }}</div>
         </div>
         <div class="flex">
-            <div class="text-lg text-gray-400 w-1/6">性别:</div>
-            <div
-                v-if="store.state.user.gender"
-                class="inline"
-            >{{ convertGender(store.state.user.gender) }}</div>
-            <div v-else>保密</div>
+            <div class="column">性别:</div>
+            <div class="inline">{{ user.gender }}</div>
         </div>
         <div class="flex">
-            <div class="text-lg text-gray-400 w-1/6">地区:</div>
-            <div v-if="store.state.user.location" class="inline">{{ store.state.user.location }}</div>
-            <div v-else>保密</div>
+            <div class="column">地区:</div>
+            <div class="inline">{{ user.location }}</div>
         </div>
         <div class="flex">
-            <div class="text-lg text-gray-400 w-1/6">生日:</div>
-            <div v-if="store.state.user.birthday" class="inline">{{ store.state.user.birthday }}</div>
-            <div v-else>保密</div>
+            <div class="column">生日:</div>
+            <div class="inline">{{ user.birthday }}</div>
         </div>
     </div>
 </template>
@@ -31,7 +25,15 @@
 <script setup lang="ts">
 import { useStore } from 'vuex'
 import { key } from '@/store/store'
-import { convertGender } from '@/utils'
 
 const store = useStore(key)
+const { user } = store.state
 </script>
+
+<style scoped>
+.column {
+    font-size: 18px;
+    color: rgba(156, 163, 175);
+    width: 1/6;
+}
+</style>

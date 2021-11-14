@@ -107,7 +107,7 @@ function handleShowRegist(): void {
 
 function logout(): void {
     store.commit('isLogin', false)
-    store.commit('clearUserInfo')
+    store.commit('clearUser')
 }
 
 function confirmLogout(): void {

@@ -11,7 +11,7 @@ export interface userDetailItem {
     id?: number,
     name: string,
     password: string,
-    role?: string,
+    role: string,
     location: string,
     birthday: string,
     gender: string,
