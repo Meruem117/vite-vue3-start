@@ -2,14 +2,18 @@
 export const UP_LIST_SIZE = 10
 export const UP_BACKGROUND_IMAGE = 'http://i0.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png@2560w_400h_100q_1o.webp'
 // user
+export const USER_LIST_SIZE = 10
 export const ROLES = {
     admin: 'admin',
     user: 'user'
 }
-export const USER_LIST_SIZE = 10
-export const DEFAULT_LOCATION = '暂无'
-export const DEFAULT_BIRTHDAY = '暂无'
-export const DEFAULT_GENDER = '暂无'
+export const GENDER = {
+    male: '男',
+    female: '女',
+    default: '保密'
+}
+export const DEFAULT_LOCATION = '保密'
+export const DEFAULT_BIRTHDAY = '保密'
 export const DEFAULT_DATE_FORMAT = 'YYYY-MM-DD'
 export const CITY_LIST = [
     {

@@ -31,7 +31,7 @@
         <a-form-item label="Location">
             <a-cascader
                 v-model:value="formState.rawLocation"
-                :options="cityOptions"
+                :options="CITY_LIST"
                 placeholder="Please select your location"
             />
         </a-form-item>
@@ -44,8 +44,8 @@
         </a-form-item>
         <a-form-item label="Gender">
             <a-radio-group v-model:value="formState.gender">
-                <a-radio value="male">Male</a-radio>
-                <a-radio value="female">Female</a-radio>
+                <a-radio :value="GENDER.male">Male</a-radio>
+                <a-radio :value="GENDER.female">Female</a-radio>
             </a-radio-group>
         </a-form-item>
         <a-form-item :wrapper-col="{ span: 15, offset: 5 }">
@@ -64,7 +64,7 @@ import { RuleObject, ValidateErrorEntity } from 'ant-design-vue/es/form/interfac
 import { Moment } from 'moment'
 import { userDetailItem } from '@/models/user'
 import { addUser, userExistByName } from '@/services/user'
-import { ROLES, DEFAULT_LOCATION, DEFAULT_BIRTHDAY, DEFAULT_GENDER, DEFAULT_DATE_FORMAT, CITY_LIST } from '@/constant'
+import { ROLES, GENDER, DEFAULT_LOCATION, DEFAULT_BIRTHDAY, DEFAULT_DATE_FORMAT, CITY_LIST } from '@/constant'
 
 interface FormState extends userDetailItem {
     checkPassword: string,
@@ -84,7 +84,7 @@ const formState: FormState = reactive({
     rawLocation: '',
     birthday: DEFAULT_BIRTHDAY,
     rawBirthday: null,
-    gender: DEFAULT_GENDER,
+    gender: GENDER.default,
 })
 const rules = {
     name: [
@@ -100,7 +100,6 @@ const rules = {
         { min: 6, max: 24, message: 'Length should be 6 to 24', trigger: 'change' }
     ],
 }
-const cityOptions = CITY_LIST
 
 async function validateUsername(rule: RuleObject, value: string): Promise<void> {
     if (value === '') {
