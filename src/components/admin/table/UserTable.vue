@@ -33,6 +33,7 @@
     </template>
   </a-table>
   <a-button class="float-left w-24 -mt-10 mb-2" @click="openModal">Add</a-button>
+  <!-- modal -->
   <a-modal v-model:visible="state.visible" title="Add" okType="link" okText="...">
     <a-form :label-col="{ span: 5 }" :wrapper-col="{ span: 15 }">
       <a-form-item label="Id" v-bind="validateInfos.id">
@@ -67,7 +68,6 @@ interface stateItem {
   visible: boolean
 }
 
-const useForm = Form.useForm
 const router = useRouter()
 const state: stateItem = reactive({
   data: [],
@@ -124,6 +124,7 @@ const rulesRef = reactive({
     },
   ],
 })
+const useForm = Form.useForm
 const { resetFields, validate, validateInfos } = useForm(modelRef, rulesRef)
 
 async function init(): Promise<void> {

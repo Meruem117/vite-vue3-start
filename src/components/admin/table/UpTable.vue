@@ -7,12 +7,14 @@
         bordered
         rowKey="id"
     >
+        <!-- mid -->
         <template #mid="{ text, record }">
             <div v-if="record.edit">
                 <a-input v-model:value="record.mid" @pressEnter="formSave(record)" />
             </div>
             <div v-else>{{ text }}</div>
         </template>
+        <!-- name -->
         <template #name="{ text, record }">
             <div v-if="record.edit">
                 <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
@@ -21,6 +23,7 @@
                 <a @click="router.push({ name: 'space', params: { mid: record.mid } })">{{ text }}</a>
             </div>
         </template>
+        <!-- operation -->
         <template #operation="{ record }">
             <a class="mr-5" v-if="record.edit === false" @click="record.edit = true">Edit</a>
             <a-popconfirm v-else title="Sure to change?" @confirm="formSave(record)">
@@ -33,6 +36,7 @@
         </template>
     </a-table>
     <a-button class="float-left w-24 -mt-10 mb-2" @click="openModal">Add</a-button>
+    <!-- modal -->
     <a-modal v-model:visible="state.visible" title="Add" okType="link" okText="...">
         <a-form :label-col="{ span: 5 }" :wrapper-col="{ span: 15 }">
             <a-form-item label="Id" v-bind="validateInfos.id">
