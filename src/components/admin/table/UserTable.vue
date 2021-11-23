@@ -3,24 +3,18 @@
     :columns="columns"
     :data-source="state.data"
     class="ant-table-striped"
-    :rowClassName="(record: upFormItem, index: number) => (index % 2 === 1 ? 'table-striped' : null)"
+    :rowClassName="(record: userFormItem, index: number) => (index % 2 === 1 ? 'table-striped' : null)"
     bordered
     rowKey="id"
   >
-    <template #mid="{ text, record }">
-      <div v-if="record.edit">
-        <a-input v-model:value="record.mid" @pressEnter="formSave(record)" />
-      </div>
-      <div v-else>{{ text }}</div>
-    </template>
+    <!-- name -->
     <template #name="{ text, record }">
       <div v-if="record.edit">
         <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
       </div>
-      <div v-else>
-        <a @click="router.push({ name: 'space', params: { mid: record.mid } })">{{ text }}</a>
-      </div>
+      <div v-else>{{ text }}</div>
     </template>
+    <!-- operation -->
     <template #operation="{ record }">
       <a class="mr-5" v-if="record.edit === false" @click="record.edit = true">Edit</a>
       <a-popconfirm v-else title="Sure to change?" @confirm="formSave(record)">
@@ -36,14 +30,23 @@
   <!-- modal -->
   <a-modal v-model:visible="state.visible" title="Add" okType="link" okText="...">
     <a-form :label-col="{ span: 5 }" :wrapper-col="{ span: 15 }">
-      <a-form-item label="Id" v-bind="validateInfos.id">
-        <a-input v-model:value="modelRef.id" />
-      </a-form-item>
-      <a-form-item label="Mid" v-bind="validateInfos.mid">
-        <a-input v-model:value="modelRef.mid" />
-      </a-form-item>
       <a-form-item label="Name" v-bind="validateInfos.name">
         <a-input v-model:value="modelRef.name" />
+      </a-form-item>
+      <a-form-item label="Password" v-bind="validateInfos.password">
+        <a-input v-model:value="modelRef.password" />
+      </a-form-item>
+      <a-form-item label="Role" v-bind="validateInfos.role">
+        <a-input v-model:value="modelRef.role" />
+      </a-form-item>
+      <a-form-item label="Location" v-bind="validateInfos.location">
+        <a-input v-model:value="modelRef.location" />
+      </a-form-item>
+      <a-form-item label="Birthday" v-bind="validateInfos.birthday">
+        <a-input v-model:value="modelRef.birthday" />
+      </a-form-item>
+      <a-form-item label="Gender" v-bind="validateInfos.gender">
+        <a-input v-model:value="modelRef.gender" />
       </a-form-item>
       <a-form-item :wrapper-col="{ span: 15, offset: 5 }">
         <a-button type="primary" @click.prevent="onSubmit">Add</a-button>
@@ -57,14 +60,15 @@
 import { reactive, onMounted, toRaw } from 'vue'
 import { useRouter } from 'vue-router'
 import { Form } from 'ant-design-vue'
-import { upItem } from '@/models/up'
-import { getAllUps, addUp, updateUp, deleteUp } from '@/services/up'
+import { userDetailItem } from '@/models/user'
+import { getAllUsers, addUser, updateUser, deleteUser, getUserById } from '@/services/user'
+import { ROLES } from '@/constant'
 
-interface upFormItem extends upItem {
+interface userFormItem extends userDetailItem {
   edit: boolean
 }
 interface stateItem {
-  data: upFormItem[],
+  data: userFormItem[],
   visible: boolean
 }
 
@@ -80,12 +84,6 @@ const columns = reactive([
     key: 'id',
   },
   {
-    title: 'Mid',
-    dataIndex: 'mid',
-    key: 'mid',
-    slots: { customRender: 'mid' },
-  },
-  {
     title: 'Name',
     dataIndex: 'name',
     key: 'name',
@@ -93,34 +91,82 @@ const columns = reactive([
     ellipsis: true,
   },
   {
+    title: 'Password',
+    dataIndex: 'password',
+    key: 'password',
+    slots: { customRender: 'password' },
+  },
+  {
+    title: 'Role',
+    dataIndex: 'role',
+    key: 'role',
+    slots: { customRender: 'role' },
+  },
+  {
+    title: 'Location',
+    dataIndex: 'location',
+    key: 'location',
+    slots: { customRender: 'location' },
+  },
+  {
+    title: 'Birthday',
+    dataIndex: 'birthday',
+    key: 'birthday',
+    slots: { customRender: 'birthday' },
+  },
+  {
+    title: 'Gender',
+    dataIndex: 'gender',
+    key: 'gender',
+    slots: { customRender: 'gender' },
+  },
+  {
     title: 'Operation',
     dataIndex: 'operation',
     slots: { customRender: 'operation' },
   }
 ])
-const modelRef: upItem = reactive({
-  id: 0,
-  mid: '',
-  name: ''
+const modelRef: userDetailItem = reactive({
+  name: '',
+  password: '',
+  role: '',
+  location: '',
+  birthday: '',
+  gender: ''
 })
 const rulesRef = reactive({
-  id: [
-    {
-      required: true,
-      type: 'number',
-      message: 'Please input id',
-    },
-  ],
-  mid: [
-    {
-      required: true,
-      message: 'Please input mid',
-    },
-  ],
   name: [
     {
       required: true,
+      type: 'number',
       message: 'Please input name',
+    },
+  ],
+  password: [
+    {
+      required: true,
+      message: 'Please input password',
+    },
+  ],
+  role: [
+    {
+      required: true,
+      message: 'Please input role',
+    },
+  ],
+  location: [
+    {
+      required: false,
+    },
+  ],
+  birthday: [
+    {
+      required: false,
+    },
+  ],
+  gender: [
+    {
+      required: false,
     },
   ],
 })
@@ -128,9 +174,9 @@ const useForm = Form.useForm
 const { resetFields, validate, validateInfos } = useForm(modelRef, rulesRef)
 
 async function init(): Promise<void> {
-  getAllUps().then(ups => {
-    ups.forEach(up => {
-      const res = { ...up, edit: false }
+  getAllUsers().then(users => {
+    users.forEach(user => {
+      const res = { ...user, edit: false }
       state.data = [...state.data, res]
     })
   })
@@ -138,26 +184,27 @@ async function init(): Promise<void> {
 
 function onSubmit(): void {
   validate()
-    .then(() => {
+    .then(async () => {
       state.visible = false
-      const up: upItem = toRaw(modelRef)
-      addUp(up)
-      return up
+      const user: userDetailItem = toRaw(modelRef)
+      const id = await addUser(user)
+      return id
     })
-    .then(up => {
-      state.data = [...state.data, { ...up, edit: false }]
+    .then(async id => {
+      const user = await getUserById(id)
+      state.data = [...state.data, { ...user, edit: false }]
       resetFields()
     })
     .catch(err => console.error(err))
 }
 
-function formSave(record: upFormItem): void {
+function formSave(record: userFormItem): void {
   record.edit = false
-  updateUp(record)
+  updateUser(record)
 }
 
-function formDelete(record: upFormItem): void {
-  deleteUp(record.id)
+function formDelete(record: userFormItem): void {
+  deleteUser(record.id!)
 }
 
 function openModal(): void {
