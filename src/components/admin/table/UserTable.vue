@@ -62,7 +62,7 @@ import { useRouter } from 'vue-router'
 import { Form } from 'ant-design-vue'
 import { userDetailItem } from '@/models/user'
 import { getAllUsers, addUser, updateUser, deleteUser, getUserById } from '@/services/user'
-import { ROLES } from '@/constant'
+import { ROLES, DEFAULT_LOCATION, DEFAULT_BIRTHDAY, GENDER } from '@/constant'
 
 interface userFormItem extends userDetailItem {
   edit: boolean
@@ -129,10 +129,10 @@ const columns = reactive([
 const modelRef: userDetailItem = reactive({
   name: '',
   password: '',
-  role: '',
-  location: '',
-  birthday: '',
-  gender: ''
+  role: ROLES.user,
+  location: DEFAULT_LOCATION,
+  birthday: DEFAULT_BIRTHDAY,
+  gender: GENDER.default
 })
 const rulesRef = reactive({
   name: [
