@@ -8,14 +8,14 @@
         rowKey="id"
     >
         <!-- mid -->
-        <template #mid="{ text, record }">
+        <template #up-mid="{ text, record }">
             <div v-if="record.edit">
                 <a-input v-model:value="record.mid" @pressEnter="formSave(record)" />
             </div>
             <div v-else>{{ text }}</div>
         </template>
         <!-- name -->
-        <template #name="{ text, record }">
+        <template #up-name="{ text, record }">
             <div v-if="record.edit">
                 <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
             </div>
@@ -24,7 +24,7 @@
             </div>
         </template>
         <!-- operation -->
-        <template #operation="{ record }">
+        <template #up-operation="{ record }">
             <a class="mr-5" v-if="record.edit === false" @click="record.edit = true">Edit</a>
             <a-popconfirm v-else title="Sure to change?" @confirm="formSave(record)">
                 <a class="mr-5 text-green-500">Save</a>
@@ -87,19 +87,19 @@ const columns = reactive([
         title: 'Mid',
         dataIndex: 'mid',
         key: 'mid',
-        slots: { customRender: 'mid' },
+        slots: { customRender: 'up-mid' },
     },
     {
         title: 'Name',
         dataIndex: 'name',
         key: 'name',
-        slots: { customRender: 'name' },
+        slots: { customRender: 'up-name' },
         ellipsis: true,
     },
     {
         title: 'Operation',
         dataIndex: 'operation',
-        slots: { customRender: 'operation' },
+        slots: { customRender: 'up-operation' },
     }
 ])
 const modelRef: upItem = reactive({

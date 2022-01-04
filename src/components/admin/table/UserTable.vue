@@ -8,14 +8,49 @@
     rowKey="id"
   >
     <!-- name -->
-    <template #name="{ text, record }">
+    <template #user-name="{ text, record }">
+      <div v-if="record.edit">
+        <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
+      </div>
+      <div v-else>{{ text }}</div>
+    </template>
+    <!-- password -->
+    <template #user-password="{ text, record }">
+      <div v-if="record.edit">
+        <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
+      </div>
+      <div v-else>{{ text }}</div>
+    </template>
+    <!-- role -->
+    <template #user-role="{ text, record }">
+      <div v-if="record.edit">
+        <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
+      </div>
+      <div v-else>{{ text }}</div>
+    </template>
+    <!-- location -->
+    <template #user-location="{ text, record }">
+      <div v-if="record.edit">
+        <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
+      </div>
+      <div v-else>{{ text }}</div>
+    </template>
+    <!-- birthday -->
+    <template #user-birthday="{ text, record }">
+      <div v-if="record.edit">
+        <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
+      </div>
+      <div v-else>{{ text }}</div>
+    </template>
+    <!-- gender -->
+    <template #user-gender="{ text, record }">
       <div v-if="record.edit">
         <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
       </div>
       <div v-else>{{ text }}</div>
     </template>
     <!-- operation -->
-    <template #operation="{ record }">
+    <template #user-operation="{ record }">
       <a class="mr-5" v-if="record.edit === false" @click="record.edit = true">Edit</a>
       <a-popconfirm v-else title="Sure to change?" @confirm="formSave(record)">
         <a class="mr-5 text-green-500">Save</a>
@@ -87,43 +122,43 @@ const columns = reactive([
     title: 'Name',
     dataIndex: 'name',
     key: 'name',
-    slots: { customRender: 'name' },
+    slots: { customRender: 'user-name' },
     ellipsis: true,
   },
   {
     title: 'Password',
     dataIndex: 'password',
     key: 'password',
-    slots: { customRender: 'password' },
+    slots: { customRender: 'user-password' },
   },
   {
     title: 'Role',
     dataIndex: 'role',
     key: 'role',
-    slots: { customRender: 'role' },
+    slots: { customRender: 'user-role' },
   },
   {
     title: 'Location',
     dataIndex: 'location',
     key: 'location',
-    slots: { customRender: 'location' },
+    slots: { customRender: 'user-location' },
   },
   {
     title: 'Birthday',
     dataIndex: 'birthday',
     key: 'birthday',
-    slots: { customRender: 'birthday' },
+    slots: { customRender: 'user-birthday' },
   },
   {
     title: 'Gender',
     dataIndex: 'gender',
     key: 'gender',
-    slots: { customRender: 'gender' },
+    slots: { customRender: 'user-gender' },
   },
   {
     title: 'Operation',
     dataIndex: 'operation',
-    slots: { customRender: 'operation' },
+    slots: { customRender: 'user-operation' },
   }
 ])
 const modelRef: userDetailItem = reactive({
