@@ -12,7 +12,7 @@ const router = createRouter({
             path: '/home',
             name: 'home',
             component: home,
-            alias: ['/home', 'hello']
+            alias: ['/home', '/hello']
         },
         {
             path: '/about',
