@@ -17,35 +17,50 @@
     <!-- password -->
     <template #user-password="{ text, record }">
       <div v-if="record.edit">
-        <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
+        <a-input
+          v-model:value="record.password"
+          type="password"
+          autocomplete="off"
+          @pressEnter="formSave(record)"
+        />
       </div>
       <div v-else>{{ text }}</div>
     </template>
     <!-- role -->
     <template #user-role="{ text, record }">
       <div v-if="record.edit">
-        <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
+        <a-radio-group v-model:value="record.role" @pressEnter="formSave(record)">
+          <a-radio :value="ROLES.admin">Admin</a-radio>
+          <a-radio :value="ROLES.user">User</a-radio>
+        </a-radio-group>
       </div>
       <div v-else>{{ text }}</div>
     </template>
     <!-- location -->
     <template #user-location="{ text, record }">
       <div v-if="record.edit">
-        <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
+        <a-cascader
+          v-model:value="record.location"
+          :options="CITY_LIST"
+          @pressEnter="formSave(record)"
+        />
       </div>
       <div v-else>{{ text }}</div>
     </template>
     <!-- birthday -->
     <template #user-birthday="{ text, record }">
       <div v-if="record.edit">
-        <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
+        <a-input v-model:value="record.birthday" @pressEnter="formSave(record)" />
       </div>
       <div v-else>{{ text }}</div>
     </template>
     <!-- gender -->
     <template #user-gender="{ text, record }">
       <div v-if="record.edit">
-        <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
+        <a-radio-group v-model:value="record.gender" @pressEnter="formSave(record)">
+          <a-radio :value="GENDER.male">Male</a-radio>
+          <a-radio :value="GENDER.female">Female</a-radio>
+        </a-radio-group>
       </div>
       <div v-else>{{ text }}</div>
     </template>
@@ -69,19 +84,25 @@
         <a-input v-model:value="modelRef.name" />
       </a-form-item>
       <a-form-item label="Password" v-bind="validateInfos.password">
-        <a-input v-model:value="modelRef.password" />
+        <a-input v-model:value="modelRef.password" type="password" autocomplete="off" />
       </a-form-item>
       <a-form-item label="Role" v-bind="validateInfos.role">
-        <a-input v-model:value="modelRef.role" />
+        <a-radio-group v-model:value="modelRef.role">
+          <a-radio :value="ROLES.admin">Admin</a-radio>
+          <a-radio :value="ROLES.user">User</a-radio>
+        </a-radio-group>
       </a-form-item>
       <a-form-item label="Location" v-bind="validateInfos.location">
-        <a-input v-model:value="modelRef.location" />
+        <a-cascader v-model:value="modelRef.location" :options="CITY_LIST" />
       </a-form-item>
       <a-form-item label="Birthday" v-bind="validateInfos.birthday">
-        <a-input v-model:value="modelRef.birthday" />
+        <a-date-picker v-model:value="modelRef.birthday" class="w-full" />
       </a-form-item>
       <a-form-item label="Gender" v-bind="validateInfos.gender">
-        <a-input v-model:value="modelRef.gender" />
+        <a-radio-group v-model:value="modelRef.gender">
+          <a-radio :value="GENDER.male">Male</a-radio>
+          <a-radio :value="GENDER.female">Female</a-radio>
+        </a-radio-group>
       </a-form-item>
       <a-form-item :wrapper-col="{ span: 15, offset: 5 }">
         <a-button type="primary" @click.prevent="onSubmit">Add</a-button>
@@ -93,11 +114,10 @@
 
 <script setup lang="ts">
 import { reactive, onMounted, toRaw } from 'vue'
-import { useRouter } from 'vue-router'
 import { Form } from 'ant-design-vue'
 import { userDetailItem } from '@/models/user'
 import { getAllUsers, addUser, updateUser, deleteUser, getUserById } from '@/services/user'
-import { ROLES, DEFAULT_LOCATION, DEFAULT_BIRTHDAY, GENDER } from '@/constant'
+import { ROLES, DEFAULT_LOCATION, DEFAULT_BIRTHDAY, GENDER, CITY_LIST } from '@/constant'
 
 interface userFormItem extends userDetailItem {
   edit: boolean
@@ -107,7 +127,6 @@ interface stateItem {
   visible: boolean
 }
 
-const router = useRouter()
 const state: stateItem = reactive({
   data: [],
   visible: false
