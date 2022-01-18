@@ -27,40 +27,24 @@
 
 <script setup lang="ts">
 import { reactive, onMounted } from 'vue'
-import axios from 'axios'
 import * as echarts from 'echarts/core'
 import { TitleComponent, TooltipComponent, ToolboxComponent, GridComponent, LegendComponent } from 'echarts/components'
 import { BarChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
+import { hResultItem2 } from '@/models/chart'
+import { getHResult2 } from '@/services/chart'
 
 echarts.use(
     [TitleComponent, TooltipComponent, ToolboxComponent, GridComponent, LegendComponent, BarChart, CanvasRenderer]
 )
 
-const state = reactive({
-    barsData: [{
-        author: '',
-        tm: '',
-        count: 0
-    }],
-    totalData: [{
-        author: '',
-        total: 0
-    }]
-})
-
-const cate: string[] = []
-const year: string[] = []
-const labelOption = {
-    show: true,
-    // position: 'right',
-    // formatter: '{name|{a}} {c}',
-    fontSize: 16,
-    // rich: {
-    //     name: {
-    //         color: 'gray'
-    //     }
-    // }
+interface totalItem {
+    author: string,
+    total: number
+}
+interface stateItem {
+    barsData: hResultItem2[],
+    totalData: totalItem[]
 }
 interface dataset {
     name: string,
@@ -74,6 +58,18 @@ interface dataset {
     data: [number | string]
 }
 
+const state: stateItem = reactive({
+    barsData: [],
+    totalData: []
+})
+
+//* bar chart
+const cate: string[] = []
+const year: string[] = []
+const labelOption = {
+    show: true,
+    fontSize: 16,
+}
 const keyMap: { [key: string]: number } = {}
 const dataMap: { [key: string]: [number | string] } = {}
 const barsData: dataset[] = []
@@ -140,6 +136,7 @@ const optionBars = {
     series: barsData
 }
 
+//* total list
 const totalMap: { [key: string]: number } = {}
 const totalMapValues: [string, number][] = []
 
@@ -155,84 +152,79 @@ const initBars = (): void => {
 }
 
 async function getBarsData(): Promise<void> {
-    try {
-        const response = await axios.get('/api/getHResult2') //'/end/api/getHResult2'
-        state.barsData = response.data
-        // res按名字排序
-        const res = state.barsData.sort(function (a, b) {
-            return a.author.localeCompare(b.author)
-        })
-        res.map(item => {
-            // up列表
-            if (!cate.includes(item.author)) {
-                cate.push(item.author)
-            }
-            // 年份
-            const y = item.tm.slice(0, 4)
-            if (!year.includes(y)) {
-                year.push(y)
-            }
-            // 各up视频总数
-            if (totalMap[item.author]) {
-                totalMap[item.author] += item.count
-            } else {
-                totalMap[item.author] = item.count
-            }
-        })
-        // 视频总数
-        cate.map(item => {
-            totalMapValues.push([item, totalMap[item]])
-        })
-        // 倒序排序
-        totalMapValues.sort(function (a, b) {
-            return b[1] - a[1]
-        })
-        // totalData赋值
-        const { totalData } = state
-        totalData.length = 0
-        totalMapValues.map(item => {
-            totalData.push({ author: item[0], total: item[1] })
-        })
-        year.sort()
-        // 初始化keyMap
-        for (let i in cate) {
-            for (let j in year) {
-                keyMap[cate[i] + year[j]] = 0
-            }
+    state.barsData = await getHResult2()
+    // res按名字排序
+    const res = state.barsData.sort(function (a, b) {
+        return a.author.localeCompare(b.author)
+    })
+    res.map(item => {
+        // up列表
+        if (!cate.includes(item.author)) {
+            cate.push(item.author)
         }
-        // keyMap赋值
-        res.map(item => {
-            if (keyMap[item.author + item.tm.slice(0, 4)]) {
-                keyMap[item.author + item.tm.slice(0, 4)] += item.count
+        // 年份
+        const y = item.tm.slice(0, 4)
+        if (!year.includes(y)) {
+            year.push(y)
+        }
+        // 各up视频总数
+        if (totalMap[item.author]) {
+            totalMap[item.author] += item.count
+        } else {
+            totalMap[item.author] = item.count
+        }
+    })
+    // 视频总数
+    cate.map(item => {
+        totalMapValues.push([item, totalMap[item]])
+    })
+    // 倒序排序
+    totalMapValues.sort(function (a, b) {
+        return b[1] - a[1]
+    })
+    // totalData赋值
+    const { totalData } = state
+    totalData.length = 0
+    totalMapValues.map(item => {
+        totalData.push({ author: item[0], total: item[1] })
+    })
+    year.sort()
+    // 初始化keyMap
+    for (let i in cate) {
+        for (let j in year) {
+            keyMap[cate[i] + year[j]] = 0
+        }
+    }
+    // keyMap赋值
+    res.map(item => {
+        if (keyMap[item.author + item.tm.slice(0, 4)]) {
+            keyMap[item.author + item.tm.slice(0, 4)] += item.count
+        } else {
+            keyMap[item.author + item.tm.slice(0, 4)] = item.count
+        }
+    })
+    for (let i in year) {
+        // dataMap赋值
+        cate.map(c => {
+            const key = c + year[i]
+            if (dataMap[year[i]]) {
+                dataMap[year[i]].push(keyMap[key] === 0 ? '' : keyMap[key])
             } else {
-                keyMap[item.author + item.tm.slice(0, 4)] = item.count
+                dataMap[year[i]] = [keyMap[key] === 0 ? '' : keyMap[key]]
             }
         })
-        for (let i in year) {
-            // dataMap赋值
-            cate.map(c => {
-                const key = c + year[i]
-                if (dataMap[year[i]]) {
-                    dataMap[year[i]].push(keyMap[key] === 0 ? '' : keyMap[key])
-                } else {
-                    dataMap[year[i]] = [keyMap[key] === 0 ? '' : keyMap[key]]
-                }
-            })
-            // 图表数据
-            barsData.push({
-                name: year[i],
-                type: 'bar',
-                stack: 'total',
-                label: labelOption,
-                emphasis: {
-                    focus: 'series'
-                },
-                barWidth: 55,
-                data: dataMap[year[i]]
-            })
-        }
-    } catch (error) {
-        console.error(error)
+        // 图表数据
+        barsData.push({
+            name: year[i],
+            type: 'bar',
+            stack: 'total',
+            label: labelOption,
+            emphasis: {
+                focus: 'series'
+            },
+            barWidth: 55,
+            data: dataMap[year[i]]
+        })
     }
 }
 

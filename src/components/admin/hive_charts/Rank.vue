@@ -10,7 +10,7 @@
                 @click="toVideo(video.author, video.bvid)"
             >
                 <div
-                    :style="{ backgroundImage: 'url(' + video.pic + ')' }"
+                    :style="{ backgroundImage: `url('${convertImageUrl(video.pic)}')` }"
                     class="rounded cursor-pointer bg-no-repeat bg-contain h-40 w-1/3"
                 ></div>
                 <div class="flex flex-col w-1/3 pl-5">
@@ -51,47 +51,28 @@
 <script setup lang="ts">
 import { reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import { useStore } from 'vuex'
 import { key } from '@/store/store'
 import { SignalFilled, UserOutlined, PlaySquareFilled, ProfileOutlined } from '@ant-design/icons-vue'
+import { hResultItem3 } from '@/models/chart'
+import { logItem } from '@/models/log'
+import { getHResult3 } from '@/services/chart'
+import { addLog } from '@/services/log'
+import { convertPlay } from '@/utils'
+import { IMAGE_URL_PREFIX } from '@/constant'
+
+interface stateItem {
+    videos: hResultItem3[]
+}
 
 const router = useRouter()
 const store = useStore(key)
-
-const state = reactive({
-    videos: [{
-        bvid: '',
-        mid: '',
-        title: '',
-        author: '',
-        pic: '',
-        play: 0,
-        review: 0,
-        score: 0
-    }]
+const state: stateItem = reactive({
+    videos: []
 })
 
 async function getData(): Promise<void> {
-    try {
-        const response = await axios.post(`/api/getHResult3`)
-        state.videos = response.data
-    } catch (error) {
-        console.error(error)
-    }
-}
-
-function convertPlay(play: number): string {
-    let res = 0
-    if (play / 10000 > 0) {
-        play /= 10000
-        res = roundFun(play, 1)
-    }
-    return res + '万'
-}
-
-function roundFun(value: number, n: number): number {
-    return Math.round(value * Math.pow(10, n)) / Math.pow(10, n)
+    state.videos = await getHResult3()
 }
 
 function toUp(mid: string): void {
@@ -102,7 +83,13 @@ function toUp(mid: string): void {
 }
 
 function toVideo(author: string, bvid: string): void {
-    addLog(author, bvid, store.state.user.location)
+    const location = store.state.user.location!
+    const log: logItem = {
+        author,
+        bvid,
+        location: location ? location : '暂无'
+    }
+    addLog(log)
     let url = router.resolve({
         name: 'video',
         params: { bvid: bvid }
@@ -110,13 +97,8 @@ function toVideo(author: string, bvid: string): void {
     window.open(url.href, '_blank')
 }
 
-async function addLog(author: string, bvid: string, location: string): Promise<void> {
-    const loc: string = location ? location : '暂无'
-    try {
-        await axios.post(`/api/addLog?author=${author}&bvid=${bvid}&location=${loc}`)
-    } catch (error) {
-        console.error(error)
-    }
+function convertImageUrl(url: string): string {
+    return IMAGE_URL_PREFIX + url
 }
 
 onMounted(() => getData())

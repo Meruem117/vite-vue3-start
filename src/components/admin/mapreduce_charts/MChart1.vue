@@ -41,6 +41,7 @@ import * as echarts from 'echarts/core'
 import { AriaComponent, TooltipComponent, ToolboxComponent, GridComponent } from 'echarts/components'
 import { BarChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
+import { roundFun } from '@/utils'
 
 echarts.use(
     [AriaComponent, TooltipComponent, ToolboxComponent, GridComponent, BarChart, CanvasRenderer]
@@ -60,49 +61,43 @@ interface dataItem {
     count: number,
     tm: string
 }
-interface cateset {
+interface cateSetItem {
     [key: string]: string[]
 }
-interface dataSet {
+interface dataSetItem {
     [key: string]: number[]
 }
-interface rateSet {
+interface rateSetItem {
     [key: string]: rateItem[]
 }
-interface State {
+interface stateItem {
     data: dataItem[],
     n: number,
     select: string,
     time: string[],
-    cateset: cateset,
-    dataset: dataSet,
-    rateset: rateSet,
+    cateSet: cateSetItem,
+    dataSet: dataSetItem,
+    rateSet: rateSetItem,
     sumTotal: number,
     sumRate: string,
     color: string,
     sign: string,
 }
-const state: State = reactive({
+
+const state: stateItem = reactive({
     data: [],
     n: 5,
     select: '',
     time: [],
-    cateset: {},
-    dataset: {},
-    rateset: {},
+    cateSet: {},
+    dataSet: {},
+    rateSet: {},
     sumTotal: 0,
     sumRate: '- -',
     color: 'gray',
     sign: ''
 })
-
 const option = {
-    // aria: {
-    //     enabled: true,
-    //     decal: {
-    //         show: true
-    //     }
-    // },
     tooltip: {
         trigger: 'item',
         textStyle: {
@@ -112,7 +107,7 @@ const option = {
             if (state.time.indexOf(state.select) === state.time.length - 1) {
                 return params.name + colorDot('blue') + '播放量: ' + params.data
             } else {
-                const rate: number | string = state.rateset[state.select][params.dataIndex]
+                const rate: number | string = state.rateSet[state.select][params.dataIndex]
                 if (typeof rate === 'number') {
                     const color: string = rate < 0 ? 'red' : 'yellowgreen'
                     return params.name + colorDot('blue') + '播放量: ' + params.data + colorDot(color) + '增长率: ' + rate + '%'
@@ -141,7 +136,6 @@ const option = {
     },
     xAxis: {
         type: 'category',
-        // data: state.cateset[state.select],
         axisTick: {
             length: 30
         },
@@ -158,7 +152,6 @@ const option = {
     series: [{
         type: 'bar',
         barWidth: '60%',
-        // data: state.dataset[state.select],
         label: {
             show: true,
             fontSize: 18,
@@ -188,11 +181,7 @@ const option = {
                     ]
                 )
             }
-        },
-        // showBackground: true,
-        // backgroundStyle: {
-        //     color: 'rgba(180, 180, 180, 0.2)'
-        // }
+        }
     }]
 }
 
@@ -209,10 +198,10 @@ const initBar = (): void => {
             myChartBar.setOption(option)
             const dataOption = {
                 xAxis: {
-                    data: state.cateset[state.select].slice(0, state.n)
+                    data: state.cateSet[state.select].slice(0, state.n)
                 },
                 series: [{
-                    data: state.dataset[state.select].slice(0, state.n),
+                    data: state.dataSet[state.select].slice(0, state.n),
                 }]
             }
             myChartBar.setOption(dataOption)
@@ -223,7 +212,7 @@ const initBar = (): void => {
 
 async function getTm(): Promise<void> {
     try {
-        const response = await axios.get(`/api/getDistinctTm`)
+        const response = await axios.get(`/api/chart/getDistinctTm`)
         state.time = response.data
         state.select = state.time[0]
     } catch (error) {
@@ -233,7 +222,7 @@ async function getTm(): Promise<void> {
 
 async function getCount(tm: string): Promise<void> {
     try {
-        const response = await axios.get(`/api/getMResultByNameAndTm?name=访问量&tm=${tm}`)
+        const response = await axios.get(`/api/chart/getMResultByNameAndTm?name=访问量&tm=${tm}`)
         state.sumTotal = response.data.count
     } catch (error) {
         console.error(error)
@@ -245,7 +234,7 @@ async function getCountRate(time: string, count: number): Promise<void> {
         const index: number = state.time.indexOf(time)
         if (index < state.time.length - 1) {
             const tm: string = state.time[index + 1]
-            const response = await axios.get(`/api/getMResultByNameAndTm?name=访问量&tm=${tm}`)
+            const response = await axios.get(`/api/chart/getMResultByNameAndTm?name=访问量&tm=${tm}`)
             const res = response.data
             const rate: number = (count - res.count) / res.count
             state.color = rate > 0 ? 'yellowgreen' : 'red'
@@ -263,18 +252,18 @@ async function getCountRate(time: string, count: number): Promise<void> {
 
 async function getData(tm: string): Promise<void> {
     try {
-        const response = await axios.get(`/api/getMResultByTypeAndTm?type=2&tm=${tm}`)
+        const response = await axios.get(`/api/chart/getMResultByTypeAndTm?type=2&tm=${tm}`)
         state.data = response.data
         const res = state.data.sort(function (a, b) {
             return b.count - a.count
         }).slice(0, 40)
-        if (!state.cateset[state.select]) {
-            state.cateset[state.select] = []
-            state.dataset[state.select] = []
-            state.rateset[state.select] = []
+        if (!state.cateSet[state.select]) {
+            state.cateSet[state.select] = []
+            state.dataSet[state.select] = []
+            state.rateSet[state.select] = []
             res.map(item => {
-                state.cateset[item.tm].push(item.name)
-                state.dataset[item.tm].push(item.count)
+                state.cateSet[item.tm].push(item.name)
+                state.dataSet[item.tm].push(item.count)
                 getRate(item.name, state.select, item.count)
             })
         }
@@ -288,13 +277,13 @@ async function getRate(name: string, time: string, count: number): Promise<void>
         const index: number = state.time.indexOf(time)
         if (index < state.time.length - 1) {
             const tm: string = state.time[index + 1]
-            const response = await axios.get(`/api/getMResultByNameAndTm?name=${name}&tm=${tm}`)
+            const response = await axios.get(`/api/chart/getMResultByNameAndTm?name=${name}&tm=${tm}`)
             const res = response.data
             if (res) {
                 const rate: number = (count - res.count) / res.count
-                state.rateset[state.select].push(roundFun(rate * 100, 2))
+                state.rateSet[state.select].push(roundFun(rate * 100, 2))
             } else {
-                state.rateset[state.select].push('--')
+                state.rateSet[state.select].push('--')
             }
         }
     } catch (error) {
@@ -312,19 +301,15 @@ function updateData(): void {
         myChartBar.showLoading()
         const dataOption = {
             xAxis: {
-                data: state.cateset[state.select].slice(0, state.n)
+                data: state.cateSet[state.select].slice(0, state.n)
             },
             series: [{
-                data: state.dataset[state.select].slice(0, state.n),
+                data: state.dataSet[state.select].slice(0, state.n),
             }]
         }
         myChartBar.setOption(dataOption)
         myChartBar.hideLoading()
     })
-}
-
-function roundFun(value: number, n: number): number {
-    return Math.round(value * Math.pow(10, n)) / Math.pow(10, n)
 }
 
 function colorDot(color: string): string {

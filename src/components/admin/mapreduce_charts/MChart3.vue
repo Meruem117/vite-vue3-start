@@ -44,6 +44,7 @@ import { TitleComponent, TooltipComponent, ToolboxComponent, VisualMapComponent,
 import { MapChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
 import * as geoJson from '@/static/json/china.json'
+import { roundFun } from '@/utils'
 
 echarts.use(
     [TitleComponent, TooltipComponent, ToolboxComponent, VisualMapComponent, GeoComponent, MapChart, CanvasRenderer]
@@ -53,14 +54,14 @@ const changeSelect = (): void => {
     updateData()
 }
 
+type rateItem = string | number
 interface rate {
     sum: number,
     rate: string,
     color: string,
     sign: string
 }
-type rateItem = string | number
-interface State {
+interface stateItem {
     data: {
         name: string,
         type: number,
@@ -69,20 +70,20 @@ interface State {
     }[],
     select: string,
     time: string[],
-    dataset: {
+    dataSet: {
         name: string,
         value: number
     }[],
-    rateset: rateItem[],
+    rateSet: rateItem[],
     login: rate,
     notLogin: rate
 }
-const state: State = reactive({
+const state: stateItem = reactive({
     data: [],
     select: '',
     time: [],
-    dataset: [],
-    rateset: [],
+    dataSet: [],
+    rateSet: [],
     login: {
         sum: 0,
         rate: '',
@@ -121,7 +122,7 @@ const option = {
             if (state.time.indexOf(state.select) === state.time.length - 1) {
                 return params.data.name + colorDot('blue') + '访问量: ' + params.data.value
             } else {
-                const rate: number | string = state.rateset[params.dataIndex]
+                const rate: number | string = state.rateSet[params.dataIndex]
                 if (typeof rate === 'number') {
                     const color: string = rate < 0 ? 'red' : 'yellowgreen'
                     return params.data.name + colorDot('blue') + '访问量: ' + params.data.value + colorDot(color) + '增长率: ' + rate + '%'
@@ -212,7 +213,7 @@ const initMap = (): void => {
             myChartMap.setOption(option)
             const dataOption = {
                 series: [{
-                    data: state.dataset,
+                    data: state.dataSet,
                 }]
             }
             myChartMap.setOption(dataOption)
@@ -223,8 +224,8 @@ const initMap = (): void => {
 
 async function getSum(tm: string): Promise<void> {
     try {
-        const response1 = await axios.get(`/api/getMResultByNameAndTm?name=登录&tm=${tm}`)
-        const response2 = await axios.get(`/api/getMResultByNameAndTm?name=未登录&tm=${tm}`)
+        const response1 = await axios.get(`/api/chart/getMResultByNameAndTm?name=登录&tm=${tm}`)
+        const response2 = await axios.get(`/api/chart/getMResultByNameAndTm?name=未登录&tm=${tm}`)
         state.login.sum = response1.data.count
         state.notLogin.sum = response2.data.count
     } catch (error) {
@@ -237,8 +238,8 @@ async function getSumRate(time: string): Promise<void> {
         const index: number = state.time.indexOf(time)
         if (index < state.time.length - 1) {
             const tm: string = state.time[index + 1]
-            const response1 = await axios.get(`/api/getMResultByNameAndTm?name=登录&tm=${tm}`)
-            const response2 = await axios.get(`/api/getMResultByNameAndTm?name=未登录&tm=${tm}`)
+            const response1 = await axios.get(`/api/chart/getMResultByNameAndTm?name=登录&tm=${tm}`)
+            const response2 = await axios.get(`/api/chart/getMResultByNameAndTm?name=未登录&tm=${tm}`)
             const res1 = response1.data
             const res2 = response2.data
             const rate1: number = (state.login.sum - res1.count) / res1.count
@@ -261,7 +262,7 @@ async function getSumRate(time: string): Promise<void> {
 
 async function getTm(): Promise<void> {
     try {
-        const response = await axios.get(`/api/getDistinctTm`)
+        const response = await axios.get(`/api/chart/getDistinctTm`)
         state.time = response.data
         state.select = state.time[0]
     } catch (error) {
@@ -271,13 +272,13 @@ async function getTm(): Promise<void> {
 
 async function getData(tm: string): Promise<void> {
     try {
-        const response = await axios.get(`/api/getMResultByTypeAndTm?type=3&tm=${tm}`)
+        const response = await axios.get(`/api/chart/getMResultByTypeAndTm?type=3&tm=${tm}`)
         state.data = response.data
         const res = state.data
-        state.dataset.length = 0
-        state.rateset.length = 0
+        state.dataSet.length = 0
+        state.rateSet.length = 0
         res.map(item => {
-            state.dataset.push({ name: item.name, value: item.count })
+            state.dataSet.push({ name: item.name, value: item.count })
             getRate(item.name, state.select, item.count)
         })
     } catch (error) {
@@ -290,13 +291,13 @@ async function getRate(name: string, time: string, count: number): Promise<void>
         const index: number = state.time.indexOf(time)
         if (index < state.time.length - 1) {
             const tm: string = state.time[index + 1]
-            const response = await axios.get(`/api/getMResultByNameAndTm?name=${name}&tm=${tm}`)
+            const response = await axios.get(`/api/chart/getMResultByNameAndTm?name=${name}&tm=${tm}`)
             const res = response.data
             if (res) {
                 const rate: number = (count - res.count) / res.count
-                state.rateset.push(roundFun(rate * 100, 2))
+                state.rateSet.push(roundFun(rate * 100, 2))
             } else {
-                state.rateset.push('--')
+                state.rateSet.push('--')
             }
         }
     } catch (error) {
@@ -314,16 +315,12 @@ function updateData(): void {
         myChartMap.showLoading()
         const dataOption = {
             series: [{
-                data: state.dataset,
+                data: state.dataSet,
             }]
         }
         myChartMap.setOption(dataOption)
         myChartMap.hideLoading()
     })
-}
-
-function roundFun(value: number, n: number): number {
-    return Math.round(value * Math.pow(10, n)) / Math.pow(10, n)
 }
 
 function colorDot(color: string): string {

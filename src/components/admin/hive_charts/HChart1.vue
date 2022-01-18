@@ -7,24 +7,26 @@
 
 <script setup lang="ts">
 import { reactive, onMounted } from 'vue'
-import axios from 'axios'
 import * as echarts from 'echarts/core'
 import { TitleComponent, TooltipComponent, ToolboxComponent, GridComponent, MarkLineComponent, LegendComponent } from 'echarts/components'
 import { LineChart, RadarChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
+import { hResultItem2 } from '@/models/chart'
+import { getHResult2 } from '@/services/chart'
 
 echarts.use(
     [TitleComponent, TooltipComponent, ToolboxComponent, GridComponent, MarkLineComponent, LegendComponent, LineChart, RadarChart, CanvasRenderer]
 )
 
-const state = reactive({
-    data: [{
-        author: '',
-        tm: '',
-        count: 0
-    }]
+interface stateItem {
+    data: hResultItem2[]
+}
+
+const state: stateItem = reactive({
+    data: []
 })
 
+//* line chart
 const year: string[] = []
 const line: number[] = []
 const optionLine = {
@@ -114,6 +116,7 @@ const optionLine = {
     }]
 }
 
+//* radar chart
 const author: string[] = []
 const month: string[] = []
 const cate: { name: string, max: number }[] = []
@@ -187,62 +190,56 @@ const initChart = (): void => {
 }
 
 async function getData(): Promise<void> {
-    try {
-        const response = await axios.get('/api/getHResult2') //'/end/api/getHResult1'
-        state.data = response.data
-        const res = state.data
-        res.map(item => {
-            // 作者
-            if (!author.includes(item.author)) {
-                author.push(item.author)
-            }
-            // 年份
-            const y = item.tm.slice(0, 4)
-            if (!year.includes(y)) {
-                year.push(y)
-            }
-            if (dataMap[y]) {
-                dataMap[y] += item.count
-            } else {
-                dataMap[y] = item.count
-            }
-            // 月份
-            const m = item.tm.slice(-2)
-            if (!month.includes(m)) {
-                month.push(m)
-            }
-            const k = item.author + m
-            if (dataMap[k]) {
-                dataMap[k] += item.count
-            } else {
-                dataMap[k] = item.count
-            }
-
-        })
-        year.sort()
-        month.sort()
-        year.map(y => {
-            line.push(dataMap[y])
-        })
-        month.map(m => {
-            cate.push({ name: m, max: 80 })
-        })
-        for (let i = 0; i < author.length; i++) {
-            month.map(m => {
-                const key = author[i] + m
-                if (radarMap[author[i]]) {
-                    radarMap[author[i]].push(dataMap[key] ? dataMap[key] : 0)
-                } else {
-                    radarMap[author[i]] = dataMap[key] ? [dataMap[key]] : [0]
-                }
-            })
-            radar.push({
-                value: radarMap[author[i]],
-                name: author[i]
-            })
+    state.data = await getHResult2()
+    state.data.map(item => {
+        // 作者
+        if (!author.includes(item.author)) {
+            author.push(item.author)
         }
-    } catch (error) {
-        console.error(error)
+        // 年份
+        const y = item.tm.slice(0, 4)
+        if (!year.includes(y)) {
+            year.push(y)
+        }
+        if (dataMap[y]) {
+            dataMap[y] += item.count
+        } else {
+            dataMap[y] = item.count
+        }
+        // 月份
+        const m = item.tm.slice(-2)
+        if (!month.includes(m)) {
+            month.push(m)
+        }
+        const k = item.author + m
+        if (dataMap[k]) {
+            dataMap[k] += item.count
+        } else {
+            dataMap[k] = item.count
+        }
+
+    })
+    year.sort()
+    month.sort()
+    year.map(y => {
+        line.push(dataMap[y])
+    })
+    month.map(m => {
+        cate.push({ name: m, max: 80 })
+    })
+    for (let i = 0; i < author.length; i++) {
+        month.map(m => {
+            const key = author[i] + m
+            if (radarMap[author[i]]) {
+                radarMap[author[i]].push(dataMap[key] ? dataMap[key] : 0)
+            } else {
+                radarMap[author[i]] = dataMap[key] ? [dataMap[key]] : [0]
+            }
+        })
+        radar.push({
+            value: radarMap[author[i]],
+            name: author[i]
+        })
     }
 }
 

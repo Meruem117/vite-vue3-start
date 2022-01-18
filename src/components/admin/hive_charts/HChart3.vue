@@ -32,36 +32,32 @@
 <script setup lang="ts">
 import { reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import { useStore } from 'vuex'
 import { key } from '@/store/store'
 import * as echarts from 'echarts/core'
 import { TitleComponent, TooltipComponent, ToolboxComponent, LegendComponent } from 'echarts/components'
 import { TreemapChart, FunnelChart, ScatterChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
+import { hResultItem4 } from '@/models/chart'
+import { logItem } from '@/models/log'
+import { getHResult4 } from '@/services/chart'
+import { addLog } from '@/services/log'
+import { roundFun, convertPlay } from '@/utils'
 
 echarts.use(
     [TitleComponent, TooltipComponent, ToolboxComponent, LegendComponent, TreemapChart, FunnelChart, ScatterChart, CanvasRenderer]
 )
 
-const store = useStore(key)
-
-const state = reactive({
-    data: [{
-        author: '',
-        bvid: '',
-        title: '',
-        play: 0,
-        tm: ''
-    }],
-    list: [{
-        author: '',
-        bvid: '',
-        title: '',
-        play: 0
-    }]
-})
-
+interface listItem {
+    author: string,
+    bvid: string,
+    title: string,
+    play: number
+}
+interface stateItem {
+    data: hResultItem4[],
+    list: listItem[]
+}
 interface treeDataChildren {
     name: string,
     value: number
@@ -70,6 +66,35 @@ interface treeData {
     name: string,
     children: treeDataChildren[]
 }
+interface scatterSeries {
+    name: string,
+    data: typeof list,
+    type: 'scatter',
+    symbolSize: (data: number[]) => number,
+    emphasis: {
+        focus: 'series',
+        label: {
+            show: true,
+            formatter: (param: { data: any[] }) => string,
+            position: 'top',
+            fontSize: number
+        }
+    },
+    itemStyle: {
+        shadowBlur: 10,
+        shadowColor: string,
+        shadowOffsetY: 5
+    }
+}
+
+const store = useStore(key)
+const router = useRouter()
+const state: stateItem = reactive({
+    data: [],
+    list: []
+})
+
+//* tree chart
 const cate: string[] = []
 const data: treeData[] = []
 const optionTree = {
@@ -157,6 +182,7 @@ const optionTree = {
     }]
 }
 
+//* funnel chart
 const map: { [key: string]: number } = {}
 const funnel: { value: number, name: string }[] = []
 const optionFunnel = {
@@ -225,28 +251,8 @@ const optionFunnel = {
     ]
 }
 
+//* scatter chart
 const list: [number, number, string, string, string][] = []
-
-interface scatterSeries {
-    name: string,
-    data: typeof list,
-    type: 'scatter',
-    symbolSize: (data: number[]) => number,
-    emphasis: {
-        focus: 'series',
-        label: {
-            show: true,
-            formatter: (param: { data: any[] }) => string,
-            position: 'top',
-            fontSize: number
-        }
-    },
-    itemStyle: {
-        shadowBlur: 10,
-        shadowColor: string,
-        shadowOffsetY: 5
-    }
-}
 const scatterMap: { [ket: string]: typeof list } = {}
 const scatter: scatterSeries[] = []
 const optionScatter = {
@@ -346,126 +352,104 @@ const initChart = (): void => {
 }
 
 async function getData(): Promise<void> {
-    try {
-        const response = await axios.get('/api/getHResult4') //'/end/api/getHResult4'
-        state.data = response.data
-        const res = state.data
-        res.map(item => {
-            // cate
-            if (!cate.includes(item.author)) {
-                cate.push(item.author)
-            }
-            // 各Up破千万播放总量
-            if (map[item.author]) {
-                map[item.author] += item.play
-            } else {
-                map[item.author] = item.play
-            }
-            // list
-            list.push([Math.round(Date.parse(item.tm) / 150000), item.play / 10000, item.bvid, item.title, item.author])
+    state.data = await getHResult4()
+    const res = state.data
+    res.map(item => {
+        // cate
+        if (!cate.includes(item.author)) {
+            cate.push(item.author)
+        }
+        // 各Up破千万播放总量
+        if (map[item.author]) {
+            map[item.author] += item.play
+        } else {
+            map[item.author] = item.play
+        }
+        // list
+        list.push([Math.round(Date.parse(item.tm) / 150000), item.play / 10000, item.bvid, item.title, item.author])
+    })
+    // 排序
+    list.sort(function (a, b) {
+        return b[0] - a[0]
+    })
+    state.list.length = 0
+    // 赋值
+    list.map(item => {
+        state.list.push({
+            author: item[4],
+            bvid: item[2],
+            title: item[3],
+            play: item[1] * 10000
         })
-        // 排序
-        list.sort(function (a, b) {
-            return b[0] - a[0]
-        })
-        state.list.length = 0
-        // 赋值
-        list.map(item => {
-            state.list.push({
-                author: item[4],
-                bvid: item[2],
-                title: item[3],
-                play: item[1] * 10000
-            })
-            if (scatterMap[item[4]]) {
-                scatterMap[item[4]].push(item)
-            } else {
-                scatterMap[item[4]] = [item]
-            }
-        })
-        cate.map(cate => {
-            data.push({
-                name: cate,
-                children: [
-                    {
-                        name: '',
-                        value: 0
-                    }
-                ]
-            })
-            funnel.push({ value: map[cate], name: cate })
-            scatter.push({
-                name: cate,
-                data: scatterMap[cate],
-                type: 'scatter',
-                symbolSize: function (data: number[]) {
-                    return data[0] / 600000;
-                },
-                emphasis: {
-                    focus: 'series',
-                    label: {
-                        show: true,
-                        formatter: function (param: { data: any }) {
-                            const d = new Date(param.data[0] * 150000)
-                            const date = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate()
-                            return param.data[3] + ' (' + param.data[2] + ')' + '\n\n' + date + '  ' + roundFun(param.data[1], 1) + '万'
-                        },
-                        position: 'top',
-                        fontSize: 16
-                    }
-                },
-                itemStyle: {
-                    shadowBlur: 10,
-                    shadowColor: 'rgba(25, 100, 150, 0.5)',
-                    shadowOffsetY: 5
+        if (scatterMap[item[4]]) {
+            scatterMap[item[4]].push(item)
+        } else {
+            scatterMap[item[4]] = [item]
+        }
+    })
+    cate.map(cate => {
+        data.push({
+            name: cate,
+            children: [
+                {
+                    name: '',
+                    value: 0
                 }
-            })
+            ]
         })
-        for (let i in res) {
-            for (let j = 0; j < data.length; j++) {
-                if (data[j].name === res[i].author) {
-                    data[j].children.push({
-                        name: res[i].bvid,
-                        value: res[i].play
-                    })
+        funnel.push({ value: map[cate], name: cate })
+        scatter.push({
+            name: cate,
+            data: scatterMap[cate],
+            type: 'scatter',
+            symbolSize: function (data: number[]) {
+                return data[0] / 600000;
+            },
+            emphasis: {
+                focus: 'series',
+                label: {
+                    show: true,
+                    formatter: function (param: { data: any }) {
+                        const d = new Date(param.data[0] * 150000)
+                        const date = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate()
+                        return param.data[3] + ' (' + param.data[2] + ')' + '\n\n' + date + '  ' + roundFun(param.data[1], 1) + '万'
+                    },
+                    position: 'top',
+                    fontSize: 16
                 }
+            },
+            itemStyle: {
+                shadowBlur: 10,
+                shadowColor: 'rgba(25, 100, 150, 0.5)',
+                shadowOffsetY: 5
+            }
+        })
+    })
+    for (let i in res) {
+        for (let j = 0; j < data.length; j++) {
+            if (data[j].name === res[i].author) {
+                data[j].children.push({
+                    name: res[i].bvid,
+                    value: res[i].play
+                })
             }
         }
-    } catch (error) {
-        console.error(error)
     }
 }
 
-function convertPlay(play: number): string {
-    let res = 0
-    if (play / 10000 > 0) {
-        play /= 10000
-        res = roundFun(play, 1)
-    }
-    return res + '万'
-}
-
-function roundFun(value: number, n: number): number {
-    return Math.round(value * Math.pow(10, n)) / Math.pow(10, n)
-}
-
-const router = useRouter()
 function toVideo(author: string, bvid: string): void {
-    addLog(author, bvid, store.state.user.location)
+    const location = store.state.user.location!
+    const log: logItem = {
+        author,
+        bvid,
+        location: location ? location : '暂无'
+    }
+    addLog(log)
     let url = router.resolve({
         name: 'video',
         params: { bvid: bvid }
     })
     window.open(url.href, '_blank')
-}
-
-async function addLog(author: string, bvid: string, location: string): Promise<void> {
-    const loc: string = location ? location : '暂无'
-    try {
-        await axios.post(`/api/addLog?author=${author}&bvid=${bvid}&location=${loc}`)
-    } catch (error) {
-        console.error(error)
-    }
 }
 
 onMounted(() => initChart())

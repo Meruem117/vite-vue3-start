@@ -6,7 +6,7 @@
                 id="inputNumberRose"
                 v-model:value="state.n"
                 :min="1"
-                :max="state.dataset.length"
+                :max="state.dataSet.length"
                 @change="changeN()"
             />
             <div class="text-lg font-medium align-middle p-0.5">日期 :</div>
@@ -31,6 +31,7 @@ import * as echarts from 'echarts/core'
 import { TitleComponent, ToolboxComponent, TooltipComponent, LegendComponent } from 'echarts/components'
 import { PieChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
+import { roundFun } from '@/utils'
 
 echarts.use(
     [TitleComponent, ToolboxComponent, TooltipComponent, LegendComponent, PieChart, CanvasRenderer]
@@ -44,7 +45,7 @@ const changeSelect = (): void => {
 }
 
 type rateItem = string | number
-interface State {
+interface stateItem {
     data: {
         name: string,
         type: number,
@@ -54,29 +55,22 @@ interface State {
     n: number,
     select: string,
     time: string[],
-    dataset: {
+    dataSet: {
         value: number,
         name: string
     }[],
-    rateset: rateItem[]
+    rateSet: rateItem[]
 }
-const state: State = reactive({
+const state: stateItem = reactive({
     data: [],
     n: 5,
     select: '',
     time: [],
-    dataset: [],
-    rateset: []
+    dataSet: [],
+    rateSet: []
 })
 
 const option = {
-    // title: {
-    //     text: '各up视频播放量 Top ' + n.value,
-    //     textStyle: {
-    //         fontWeight: 'bolder',
-    //         fontSize: 22
-    //     }
-    // },
     legend: {
         bottom: '5%',
         textStyle: {
@@ -92,7 +86,7 @@ const option = {
             if (state.time.indexOf(state.select) === state.time.length - 1) {
                 return params.data.name + colorDot('blue') + '播放量: ' + params.data.value
             } else {
-                const rate: number | string = state.rateset[params.dataIndex]
+                const rate: number | string = state.rateSet[params.dataIndex]
                 if (typeof rate === 'number') {
                     const color: string = rate < 0 ? 'red' : 'yellowgreen'
                     return params.data.name + colorDot('blue') + '播放量: ' + params.data.value + colorDot(color) + '增长率: ' + rate + '%'
@@ -129,7 +123,6 @@ const option = {
             itemStyle: {
                 borderRadius: 8
             },
-            // data: state.dataset.slice(0, state.n),
             label: {
                 show: true,
                 fontSize: 20
@@ -148,7 +141,7 @@ const initRose = (): void => {
             myChartRose.setOption(option)
             const dataOption = {
                 series: [{
-                    data: state.dataset.slice(0, state.n),
+                    data: state.dataSet.slice(0, state.n),
                 }]
             }
             myChartRose.setOption(dataOption)
@@ -159,7 +152,7 @@ const initRose = (): void => {
 
 async function getTm(): Promise<void> {
     try {
-        const response = await axios.get(`/api/getDistinctTm`)
+        const response = await axios.get(`/api/chart/getDistinctTm`)
         state.time = response.data
         state.select = state.time[0]
     } catch (error) {
@@ -169,15 +162,15 @@ async function getTm(): Promise<void> {
 
 async function getData(tm: string): Promise<void> {
     try {
-        const response = await axios.get(`/api/getMResultByTypeAndTm?type=1&tm=${tm}`)
+        const response = await axios.get(`/api/chart/getMResultByTypeAndTm?type=1&tm=${tm}`)
         state.data = response.data
         const res = state.data.sort(function (a, b) {
             return b.count - a.count
         })
-        state.dataset.length = 0
-        state.rateset.length = 0
+        state.dataSet.length = 0
+        state.rateSet.length = 0
         res.map(item => {
-            state.dataset.push({ value: item.count, name: item.name })
+            state.dataSet.push({ value: item.count, name: item.name })
             getRate(item.name, state.select, item.count)
         })
     } catch (error) {
@@ -190,13 +183,13 @@ async function getRate(name: string, time: string, count: number): Promise<void>
         const index: number = state.time.indexOf(time)
         if (index < state.time.length - 1) {
             const tm: string = state.time[index + 1]
-            const response = await axios.get(`/api/getMResultByNameAndTm?name=${name}&tm=${tm}`)
+            const response = await axios.get(`/api/chart/getMResultByNameAndTm?name=${name}&tm=${tm}`)
             const res = response.data
             if (res) {
                 const rate: number = (count - res.count) / res.count
-                state.rateset.push(roundFun(rate * 100, 2))
+                state.rateSet.push(roundFun(rate * 100, 2))
             } else {
-                state.rateset.push('--')
+                state.rateSet.push('--')
             }
         }
     } catch (error) {
@@ -211,16 +204,12 @@ function updateData(): void {
         myChartRose.showLoading()
         const dataOption = {
             series: [{
-                data: state.dataset.slice(0, state.n),
+                data: state.dataSet.slice(0, state.n),
             }]
         }
         myChartRose.setOption(dataOption)
         myChartRose.hideLoading()
     })
-}
-
-function roundFun(value: number, n: number): number {
-    return Math.round(value * Math.pow(10, n)) / Math.pow(10, n)
 }
 
 function colorDot(color: string): string {
