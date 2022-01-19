@@ -29,3 +29,7 @@ export function convertPlay(play: number): string {
 export function convertImageUrl(url: string): string {
     return IMAGE_URL_PREFIX + url
 }
+
+export function colorDot(color: string): string {
+    return `<br /><span style="font-size:22px;color:${color};"> ● </span>`
+}

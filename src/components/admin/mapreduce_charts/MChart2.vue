@@ -26,12 +26,13 @@
 
 <script setup lang="ts">
 import { reactive, onMounted } from 'vue'
-import axios from 'axios'
 import * as echarts from 'echarts/core'
 import { TitleComponent, ToolboxComponent, TooltipComponent, LegendComponent } from 'echarts/components'
 import { PieChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
-import { roundFun } from '@/utils'
+import { getDistinctTm, getMResultByNameAndTm, getMResultByTypeAndTm } from '@/services/chart'
+import { roundFun, colorDot } from '@/utils'
+import { TYPE } from '@/constant'
 
 echarts.use(
     [TitleComponent, ToolboxComponent, TooltipComponent, LegendComponent, PieChart, CanvasRenderer]
@@ -151,49 +152,34 @@ const initRose = (): void => {
 }
 
 async function getTm(): Promise<void> {
-    try {
-        const response = await axios.get(`/api/chart/getDistinctTm`)
-        state.time = response.data
-        state.select = state.time[0]
-    } catch (error) {
-        console.error(error)
-    }
+    state.time = await getDistinctTm()
+    state.select = state.time[0]
 }
 
 async function getData(tm: string): Promise<void> {
-    try {
-        const response = await axios.get(`/api/chart/getMResultByTypeAndTm?type=1&tm=${tm}`)
-        state.data = response.data
-        const res = state.data.sort(function (a, b) {
-            return b.count - a.count
-        })
-        state.dataSet.length = 0
-        state.rateSet.length = 0
-        res.map(item => {
-            state.dataSet.push({ value: item.count, name: item.name })
-            getRate(item.name, state.select, item.count)
-        })
-    } catch (error) {
-        console.error(error)
-    }
+    state.data = await getMResultByTypeAndTm(TYPE.UP, tm)
+    const res = state.data.sort(function (a, b) {
+        return b.count - a.count
+    })
+    state.dataSet.length = 0
+    state.rateSet.length = 0
+    res.map(item => {
+        state.dataSet.push({ value: item.count, name: item.name })
+        getRate(item.name, state.select, item.count)
+    })
 }
 
 async function getRate(name: string, time: string, count: number): Promise<void> {
-    try {
-        const index: number = state.time.indexOf(time)
-        if (index < state.time.length - 1) {
-            const tm: string = state.time[index + 1]
-            const response = await axios.get(`/api/chart/getMResultByNameAndTm?name=${name}&tm=${tm}`)
-            const res = response.data
-            if (res) {
-                const rate: number = (count - res.count) / res.count
-                state.rateSet.push(roundFun(rate * 100, 2))
-            } else {
-                state.rateSet.push('--')
-            }
+    const index: number = state.time.indexOf(time)
+    if (index < state.time.length - 1) {
+        const tm: string = state.time[index + 1]
+        const res = await getMResultByNameAndTm(name, tm)
+        if (res) {
+            const rate: number = (count - res.count) / res.count
+            state.rateSet.push(roundFun(rate * 100, 2))
+        } else {
+            state.rateSet.push('--')
         }
-    } catch (error) {
-        console.error(error)
     }
 }
 
@@ -210,10 +196,6 @@ function updateData(): void {
         myChartRose.setOption(dataOption)
         myChartRose.hideLoading()
     })
-}
-
-function colorDot(color: string): string {
-    return `<br /><span style="font-size:22px;color:${color};"> ● </span>`
 }
 
 onMounted(() => initRose())

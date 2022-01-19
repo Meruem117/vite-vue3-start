@@ -46,5 +46,17 @@ export const GENERATE_LOG_NUMBER = 100
 export const BASE_HDFS_INPUT_PATH = '/project/input/'
 export const BASE_HDFS_OUTPUT_PATH = '/project/output/'
 export const BASE_LOCAL_LOG_PATH = '/opt/data/project/log'
+export const TYPE = {
+    UP: 1,
+    VIDEO: 2,
+    LOCATION: 3
+}
+export const CITY_MAP: { [key: string]: string } = {
+    '江苏省': '江苏',
+    '浙江省': '浙江',
+    '上海市': '上海',
+    '广东省': '广东',
+    '北京市': '北京'
+}
 // hive
 export const HIVE_DOC_PATH = '/src/assets/docs/Hive.md'
