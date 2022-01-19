@@ -3,23 +3,35 @@
     :columns="columns"
     :data-source="state.data"
     class="ant-table-striped"
-    :rowClassName="(record: userFormItem, index: number) => (index % 2 === 1 ? 'table-striped' : null)"
+    :rowClassName="(record: userDetailItem, index: number) => (index % 2 === 1 ? 'table-striped' : null)"
     bordered
     rowKey="id"
   >
     <!-- name -->
     <template #user-name="{ text, record }">
-      <a-input v-if="record.edit" v-model:value="record.name" @pressEnter="formSave(record)" />
+      <a-input
+        v-if="editableData[record.id]"
+        v-model:value="editableData[record.id]['name']"
+        @pressEnter="formSave(record.id)"
+      />
       <div v-else>{{ text }}</div>
     </template>
     <!-- password -->
     <template #user-password="{ text, record }">
-      <a-input v-if="record.edit" v-model:value="record.password" @pressEnter="formSave(record)" />
+      <a-input
+        v-if="editableData[record.id]"
+        v-model:value="editableData[record.id]['password']"
+        @pressEnter="formSave(record.id)"
+      />
       <div v-else>{{ text }}</div>
     </template>
     <!-- role -->
     <template #user-role="{ text, record }">
-      <a-radio-group v-if="record.edit" v-model:value="record.role" @pressEnter="formSave(record)">
+      <a-radio-group
+        v-if="editableData[record.id]"
+        v-model:value="editableData[record.id]['role']"
+        @pressEnter="formSave(record.id)"
+      >
         <a-radio :value="ROLES.admin">Admin</a-radio>
         <a-radio :value="ROLES.user">User</a-radio>
       </a-radio-group>
@@ -27,20 +39,28 @@
     </template>
     <!-- location -->
     <template #user-location="{ text, record }">
-      <a-input v-if="record.edit" v-model:value="record.location" @pressEnter="formSave(record)" />
+      <a-input
+        v-if="editableData[record.id]"
+        v-model:value="editableData[record.id]['location']"
+        @pressEnter="formSave(record.id)"
+      />
       <div v-else>{{ text }}</div>
     </template>
     <!-- birthday -->
     <template #user-birthday="{ text, record }">
-      <a-input v-if="record.edit" v-model:value="record.birthday" @pressEnter="formSave(record)" />
+      <a-input
+        v-if="editableData[record.id]"
+        v-model:value="editableData[record.id]['birthday']"
+        @pressEnter="formSave(record.id)"
+      />
       <div v-else>{{ text }}</div>
     </template>
     <!-- gender -->
     <template #user-gender="{ text, record }">
       <a-radio-group
-        v-if="record.edit"
-        v-model:value="record.gender"
-        @pressEnter="formSave(record)"
+        v-if="editableData[record.id]"
+        v-model:value="editableData[record.id]['gender']"
+        @pressEnter="formSave(record.id)"
       >
         <a-radio :value="GENDER.male">Male</a-radio>
         <a-radio :value="GENDER.female">Female</a-radio>
@@ -49,14 +69,16 @@
     </template>
     <!-- operation -->
     <template #user-operation="{ record }">
-      <a class="mr-5" v-if="record.edit === false" @click="record.edit = true">Edit</a>
-      <a-popconfirm v-else title="Sure to change?" @confirm="formSave(record)">
-        <a class="mr-5 text-green-500">Save</a>
-      </a-popconfirm>
-      <a-popconfirm title="Sure to delete?" @confirm="formDelete(record)">
+      <span v-if="editableData[record.id]">
+        <a-popconfirm title="Sure to change?" @confirm="formSave(record.id)">
+          <a class="text-green-500 mr-4">Save</a>
+        </a-popconfirm>
+        <a @click="cancelRecord(record.id)" class="text-gray-500 mr-4">Cancel</a>
+      </span>
+      <a v-else @click="editRecord(record.id)" class="mr-4">Edit</a>
+      <a-popconfirm title="Sure to delete?" @confirm="formDelete(record.id)">
         <a class="text-red-600">Delete</a>
       </a-popconfirm>
-      <a v-if="record.edit" @click="record.edit = false" class="ml-5 text-gray-500">Cancel</a>
     </template>
   </a-table>
   <a-button class="float-left w-24 -mt-10 mb-2" @click="openModal">Add</a-button>
@@ -67,17 +89,25 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from 'vue'
+import { reactive, onMounted, ref, Ref, UnwrapRef } from 'vue'
+import { cloneDeep } from 'lodash'
 import Regist from '@/components/main/user/Regist.vue'
-import { userDetailItem } from '@/models/user'
+// import { userDetailItem } from '@/models/user'
 import { getAllUsers, updateUser, deleteUser } from '@/services/user'
 import { ROLES, GENDER } from '@/constant'
 
-interface userFormItem extends userDetailItem {
-  edit: boolean
+interface userDetailItem {
+  id?: number,
+  name: string,
+  password: string,
+  role: string,
+  location: string,
+  birthday: string,
+  gender: string,
+  created?: string
 }
 interface stateItem {
-  data: userFormItem[],
+  data: userDetailItem[],
   visible: boolean
 }
 
@@ -85,6 +115,8 @@ const state: stateItem = reactive({
   data: [],
   visible: false
 })
+const dataSource: Ref<userDetailItem[]> = ref([])
+const editableData: UnwrapRef<Record<number, userDetailItem>> = reactive({})
 const columns = reactive([
   {
     title: 'Id',
@@ -136,21 +168,26 @@ const columns = reactive([
 ])
 
 async function init(): Promise<void> {
-  getAllUsers().then(users => {
-    users.forEach(user => {
-      const res = { ...user, edit: false }
-      state.data = [...state.data, res]
-    })
-  })
+  state.data = await getAllUsers()
+  dataSource.value = state.data
 }
 
-function formSave(record: userFormItem): void {
-  record.edit = false
-  updateUser(record)
+function editRecord(id: number): void {
+  editableData[id] = cloneDeep(dataSource.value.filter(item => id === item.id)[0])
 }
 
-function formDelete(record: userFormItem): void {
-  deleteUser(record.id!)
+function cancelRecord(id: number): void {
+  delete editableData[id]
+}
+
+function formSave(id: number): void {
+  Object.assign(dataSource.value.filter(item => id === item.id)[0], editableData[id])
+  updateUser(editableData[id])
+  delete editableData[id]
+}
+
+function formDelete(id: number): void {
+  deleteUser(id)
 }
 
 function openModal(): void {

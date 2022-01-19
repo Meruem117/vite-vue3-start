@@ -67,20 +67,22 @@ import { Form } from 'ant-design-vue'
 // import { upItem } from '@/models/up'
 import { getAllUps, addUp, updateUp, deleteUp } from '@/services/up'
 
-interface stateItem {
-    data: upItem[],
-    visible: boolean
-}
 interface upItem {
     id: number,
     mid: string,
     name: string
+}
+interface stateItem {
+    data: upItem[],
+    visible: boolean
 }
 
 const state: stateItem = reactive({
     data: [],
     visible: false
 })
+const dataSource: Ref<upItem[]> = ref([])
+const editableData: UnwrapRef<Record<number, upItem>> = reactive({})
 const columns = reactive([
     {
         title: 'Id',
@@ -134,8 +136,6 @@ const rulesRef = reactive({
 })
 const useForm = Form.useForm
 const { resetFields, validate, validateInfos } = useForm(modelRef, rulesRef)
-const dataSource: Ref<upItem[]> = ref([])
-const editableData: UnwrapRef<Record<number, upItem>> = reactive({})
 
 async function init(): Promise<void> {
     state.data = await getAllUps()
