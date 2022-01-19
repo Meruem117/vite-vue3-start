@@ -143,9 +143,7 @@ async function init(): Promise<void> {
 }
 
 function editRecord(id: number): void {
-    // const dataSource = ref(state.data)
     editableData[id] = cloneDeep(dataSource.value.filter(item => id === item.id)[0])
-    console.log(editableData[id])
 }
 
 function cancelRecord(id: number): void {
@@ -153,7 +151,6 @@ function cancelRecord(id: number): void {
 }
 
 function formSave(id: number): void {
-    // const dataSource = ref(state.data)
     Object.assign(dataSource.value.filter(item => id === item.id)[0], editableData[id])
     updateUp(editableData[id])
     delete editableData[id]
