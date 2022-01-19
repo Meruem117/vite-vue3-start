@@ -3,33 +3,40 @@
         :columns="columns"
         :data-source="state.data"
         class="ant-table-striped"
-        :rowClassName="(record: upFormItem, index: number) => (index % 2 === 1 ? 'table-striped' : null)"
+        :rowClassName="(record: upItem, index: number) => (index % 2 === 1 ? 'table-striped' : null)"
         bordered
         rowKey="id"
     >
         <!-- mid -->
         <template #up-mid="{ text, record }">
-            <a-input v-if="record.edit" v-model:value="record.mid" @pressEnter="formSave(record)" />
+            <a-input
+                v-if="editableData[record.id]"
+                v-model:value="editableData[record.id]['mid']"
+                @pressEnter="formSave(record.id)"
+            />
             <div v-else>{{ text }}</div>
         </template>
         <!-- name -->
         <template #up-name="{ text, record }">
-            <a-input v-if="record.edit" v-model:value="record.name" @pressEnter="formSave(record)" />
-            <a
-                v-else
-                @click="router.push({ name: 'space', params: { mid: record.mid } })"
-            >{{ text }}</a>
+            <a-input
+                v-if="editableData[record.id]"
+                v-model:value="editableData[record.id]['name']"
+                @pressEnter="formSave(record.id)"
+            />
+            <di v-else>{{ text }}</di>
         </template>
         <!-- operation -->
         <template #up-operation="{ record }">
-            <a class="mr-5" v-if="record.edit === false" @click="record.edit = true">Edit</a>
-            <a-popconfirm v-else title="Sure to change?" @confirm="formSave(record)">
-                <a class="mr-5 text-green-500">Save</a>
-            </a-popconfirm>
-            <a-popconfirm title="Sure to delete?" @confirm="formDelete(record)">
+            <span v-if="editableData[record.id]">
+                <a-popconfirm title="Sure to change?" @confirm="formSave(record.id)">
+                    <a class="text-green-500 mr-4">Save</a>
+                </a-popconfirm>
+                <a @click="cancelRecord(record.id)" class="text-gray-500 mr-4">Cancel</a>
+            </span>
+            <a v-else @click="editRecord(record.id)" class="mr-4">Edit</a>
+            <a-popconfirm title="Sure to delete?" @confirm="formDelete(record.id)">
                 <a class="text-red-600">Delete</a>
             </a-popconfirm>
-            <a v-if="record.edit" @click="record.edit = false" class="ml-5 text-gray-500">Cancel</a>
         </template>
     </a-table>
     <a-button class="float-left w-24 -mt-10 mb-2" @click="openModal">Add</a-button>
@@ -54,21 +61,22 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted, toRaw } from 'vue'
-import { useRouter } from 'vue-router'
+import { reactive, onMounted, toRaw, ref, Ref, UnwrapRef } from 'vue'
+import { cloneDeep } from 'lodash'
 import { Form } from 'ant-design-vue'
-import { upItem } from '@/models/up'
+// import { upItem } from '@/models/up'
 import { getAllUps, addUp, updateUp, deleteUp } from '@/services/up'
 
-interface upFormItem extends upItem {
-    edit: boolean
-}
 interface stateItem {
-    data: upFormItem[],
+    data: upItem[],
     visible: boolean
 }
+interface upItem {
+    id: number,
+    mid: string,
+    name: string
+}
 
-const router = useRouter()
 const state: stateItem = reactive({
     data: [],
     visible: false
@@ -126,14 +134,38 @@ const rulesRef = reactive({
 })
 const useForm = Form.useForm
 const { resetFields, validate, validateInfos } = useForm(modelRef, rulesRef)
+const dataSource: Ref<upItem[]> = ref([])
+const editableData: UnwrapRef<Record<number, upItem>> = reactive({})
 
 async function init(): Promise<void> {
-    getAllUps().then(ups => {
-        ups.forEach(up => {
-            const res = { ...up, edit: false }
-            state.data = [...state.data, res]
-        })
-    })
+    state.data = await getAllUps()
+    dataSource.value = state.data
+}
+
+function editRecord(id: number): void {
+    // const dataSource = ref(state.data)
+    editableData[id] = cloneDeep(dataSource.value.filter(item => id === item.id)[0])
+    console.log(editableData[id])
+}
+
+function cancelRecord(id: number): void {
+    delete editableData[id]
+}
+
+function formSave(id: number): void {
+    // const dataSource = ref(state.data)
+    Object.assign(dataSource.value.filter(item => id === item.id)[0], editableData[id])
+    updateUp(editableData[id])
+    delete editableData[id]
+}
+
+function formDelete(id: number): void {
+    deleteUp(id)
+}
+
+function openModal(): void {
+    state.visible = true
+    modelRef.id = state.data.length + 1
 }
 
 function onSubmit(): void {
@@ -145,24 +177,10 @@ function onSubmit(): void {
             return up
         })
         .then(up => {
-            state.data = [...state.data, { ...up, edit: false }]
+            state.data = [...state.data, up]
             resetFields()
         })
         .catch(err => console.error(err))
-}
-
-function formSave(record: upFormItem): void {
-    record.edit = false
-    updateUp(record)
-}
-
-function formDelete(record: upFormItem): void {
-    deleteUp(record.id)
-}
-
-function openModal(): void {
-    state.visible = true
-    modelRef.id = state.data.length + 1
 }
 
 onMounted(() => init())
