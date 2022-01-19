@@ -9,59 +9,42 @@
   >
     <!-- name -->
     <template #user-name="{ text, record }">
-      <div v-if="record.edit">
-        <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
-      </div>
+      <a-input v-if="record.edit" v-model:value="record.name" @pressEnter="formSave(record)" />
       <div v-else>{{ text }}</div>
     </template>
     <!-- password -->
     <template #user-password="{ text, record }">
-      <div v-if="record.edit">
-        <a-input
-          v-model:value="record.password"
-          type="password"
-          autocomplete="off"
-          @pressEnter="formSave(record)"
-        />
-      </div>
+      <a-input v-if="record.edit" v-model:value="record.password" @pressEnter="formSave(record)" />
       <div v-else>{{ text }}</div>
     </template>
     <!-- role -->
     <template #user-role="{ text, record }">
-      <div v-if="record.edit">
-        <a-radio-group v-model:value="record.role" @pressEnter="formSave(record)">
-          <a-radio :value="ROLES.admin">Admin</a-radio>
-          <a-radio :value="ROLES.user">User</a-radio>
-        </a-radio-group>
-      </div>
+      <a-radio-group v-if="record.edit" v-model:value="record.role" @pressEnter="formSave(record)">
+        <a-radio :value="ROLES.admin">Admin</a-radio>
+        <a-radio :value="ROLES.user">User</a-radio>
+      </a-radio-group>
       <div v-else>{{ text }}</div>
     </template>
     <!-- location -->
     <template #user-location="{ text, record }">
-      <div v-if="record.edit">
-        <a-cascader
-          v-model:value="record.location"
-          :options="CITY_LIST"
-          @pressEnter="formSave(record)"
-        />
-      </div>
+      <a-input v-if="record.edit" v-model:value="record.location" @pressEnter="formSave(record)" />
       <div v-else>{{ text }}</div>
     </template>
     <!-- birthday -->
     <template #user-birthday="{ text, record }">
-      <div v-if="record.edit">
-        <a-input v-model:value="record.birthday" @pressEnter="formSave(record)" />
-      </div>
+      <a-input v-if="record.edit" v-model:value="record.birthday" @pressEnter="formSave(record)" />
       <div v-else>{{ text }}</div>
     </template>
     <!-- gender -->
     <template #user-gender="{ text, record }">
-      <div v-if="record.edit">
-        <a-radio-group v-model:value="record.gender" @pressEnter="formSave(record)">
-          <a-radio :value="GENDER.male">Male</a-radio>
-          <a-radio :value="GENDER.female">Female</a-radio>
-        </a-radio-group>
-      </div>
+      <a-radio-group
+        v-if="record.edit"
+        v-model:value="record.gender"
+        @pressEnter="formSave(record)"
+      >
+        <a-radio :value="GENDER.male">Male</a-radio>
+        <a-radio :value="GENDER.female">Female</a-radio>
+      </a-radio-group>
       <div v-else>{{ text }}</div>
     </template>
     <!-- operation -->
@@ -79,45 +62,16 @@
   <a-button class="float-left w-24 -mt-10 mb-2" @click="openModal">Add</a-button>
   <!-- modal -->
   <a-modal v-model:visible="state.visible" title="Add" okType="link" okText="...">
-    <a-form :label-col="{ span: 5 }" :wrapper-col="{ span: 15 }">
-      <a-form-item label="Name" v-bind="validateInfos.name">
-        <a-input v-model:value="modelRef.name" />
-      </a-form-item>
-      <a-form-item label="Password" v-bind="validateInfos.password">
-        <a-input v-model:value="modelRef.password" type="password" autocomplete="off" />
-      </a-form-item>
-      <a-form-item label="Role" v-bind="validateInfos.role">
-        <a-radio-group v-model:value="modelRef.role">
-          <a-radio :value="ROLES.admin">Admin</a-radio>
-          <a-radio :value="ROLES.user">User</a-radio>
-        </a-radio-group>
-      </a-form-item>
-      <a-form-item label="Location" v-bind="validateInfos.location">
-        <a-cascader v-model:value="modelRef.location" :options="CITY_LIST" />
-      </a-form-item>
-      <a-form-item label="Birthday" v-bind="validateInfos.birthday">
-        <a-date-picker v-model:value="modelRef.birthday" class="w-full" />
-      </a-form-item>
-      <a-form-item label="Gender" v-bind="validateInfos.gender">
-        <a-radio-group v-model:value="modelRef.gender">
-          <a-radio :value="GENDER.male">Male</a-radio>
-          <a-radio :value="GENDER.female">Female</a-radio>
-        </a-radio-group>
-      </a-form-item>
-      <a-form-item :wrapper-col="{ span: 15, offset: 5 }">
-        <a-button type="primary" @click.prevent="onSubmit">Add</a-button>
-        <a-button class="ml-3" @click="resetFields">Reset</a-button>
-      </a-form-item>
-    </a-form>
+    <Regist />
   </a-modal>
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted, toRaw } from 'vue'
-import { Form } from 'ant-design-vue'
+import { reactive, onMounted } from 'vue'
+import Regist from '@/components/main/user/Regist.vue'
 import { userDetailItem } from '@/models/user'
-import { getAllUsers, addUser, updateUser, deleteUser, getUserById } from '@/services/user'
-import { ROLES, DEFAULT_LOCATION, DEFAULT_BIRTHDAY, GENDER, CITY_LIST } from '@/constant'
+import { getAllUsers, updateUser, deleteUser } from '@/services/user'
+import { ROLES, GENDER } from '@/constant'
 
 interface userFormItem extends userDetailItem {
   edit: boolean
@@ -180,52 +134,6 @@ const columns = reactive([
     slots: { customRender: 'user-operation' },
   }
 ])
-const modelRef: userDetailItem = reactive({
-  name: '',
-  password: '',
-  role: ROLES.user,
-  location: DEFAULT_LOCATION,
-  birthday: DEFAULT_BIRTHDAY,
-  gender: GENDER.default
-})
-const rulesRef = reactive({
-  name: [
-    {
-      required: true,
-      type: 'number',
-      message: 'Please input name',
-    },
-  ],
-  password: [
-    {
-      required: true,
-      message: 'Please input password',
-    },
-  ],
-  role: [
-    {
-      required: true,
-      message: 'Please input role',
-    },
-  ],
-  location: [
-    {
-      required: false,
-    },
-  ],
-  birthday: [
-    {
-      required: false,
-    },
-  ],
-  gender: [
-    {
-      required: false,
-    },
-  ],
-})
-const useForm = Form.useForm
-const { resetFields, validate, validateInfos } = useForm(modelRef, rulesRef)
 
 async function init(): Promise<void> {
   getAllUsers().then(users => {
@@ -234,22 +142,6 @@ async function init(): Promise<void> {
       state.data = [...state.data, res]
     })
   })
-}
-
-function onSubmit(): void {
-  validate()
-    .then(async () => {
-      state.visible = false
-      const user: userDetailItem = toRaw(modelRef)
-      const id = await addUser(user)
-      return id
-    })
-    .then(async id => {
-      const user = await getUserById(id)
-      state.data = [...state.data, { ...user, edit: false }]
-      resetFields()
-    })
-    .catch(err => console.error(err))
 }
 
 function formSave(record: userFormItem): void {
@@ -263,7 +155,6 @@ function formDelete(record: userFormItem): void {
 
 function openModal(): void {
   state.visible = true
-  modelRef.id = state.data.length + 1
 }
 
 onMounted(() => init())

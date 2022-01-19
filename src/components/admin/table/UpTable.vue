@@ -9,19 +9,16 @@
     >
         <!-- mid -->
         <template #up-mid="{ text, record }">
-            <div v-if="record.edit">
-                <a-input v-model:value="record.mid" @pressEnter="formSave(record)" />
-            </div>
+            <a-input v-if="record.edit" v-model:value="record.mid" @pressEnter="formSave(record)" />
             <div v-else>{{ text }}</div>
         </template>
         <!-- name -->
         <template #up-name="{ text, record }">
-            <div v-if="record.edit">
-                <a-input v-model:value="record.name" @pressEnter="formSave(record)" />
-            </div>
-            <div v-else>
-                <a @click="router.push({ name: 'space', params: { mid: record.mid } })">{{ text }}</a>
-            </div>
+            <a-input v-if="record.edit" v-model:value="record.name" @pressEnter="formSave(record)" />
+            <a
+                v-else
+                @click="router.push({ name: 'space', params: { mid: record.mid } })"
+            >{{ text }}</a>
         </template>
         <!-- operation -->
         <template #up-operation="{ record }">
@@ -71,7 +68,6 @@ interface stateItem {
     visible: boolean
 }
 
-const useForm = Form.useForm
 const router = useRouter()
 const state: stateItem = reactive({
     data: [],
@@ -128,6 +124,7 @@ const rulesRef = reactive({
         },
     ],
 })
+const useForm = Form.useForm
 const { resetFields, validate, validateInfos } = useForm(modelRef, rulesRef)
 
 async function init(): Promise<void> {

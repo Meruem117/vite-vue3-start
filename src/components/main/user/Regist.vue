@@ -137,6 +137,9 @@ async function validateCheckPassword(rule: RuleObject, value: string): Promise<v
 
 function resetForm(): void {
     formRef.value.resetFields()
+    formState.rawLocation = ''
+    formState.rawBirthday = null
+    formState.gender = ''
 }
 
 async function handleFinish(values: FormState): Promise<void> {
