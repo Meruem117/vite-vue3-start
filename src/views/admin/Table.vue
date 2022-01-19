@@ -1,14 +1,14 @@
 <template>
-    <div class="adminContent flex-col">
-        <a-tabs type="card" v-model:activeKey="activeKey" size="large">
-            <a-tab-pane key="1" tab="Up">
-                <UpTable />
-            </a-tab-pane>
-            <a-tab-pane key="2" tab="User">
-                <UserTable />
-            </a-tab-pane>
-        </a-tabs>
-    </div>
+  <div class="adminContent flex-col">
+    <a-tabs type="card" v-model:activeKey="activeKey" size="large">
+      <a-tab-pane key="1" tab="Up">
+        <UpTable />
+      </a-tab-pane>
+      <a-tab-pane key="2" tab="User">
+        <UserTable />
+      </a-tab-pane>
+    </a-tabs>
+  </div>
 </template>
 
 <script setup lang="ts">

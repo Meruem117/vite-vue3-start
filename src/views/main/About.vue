@@ -1,9 +1,9 @@
 <template>
-    <Nav :current="['about']" />
-    <div class="mainContent">
-        <h1>About</h1>
-    </div>
-    <Footer />
+  <Nav :current="['about']" />
+  <div class="mainContent">
+    <h1>About</h1>
+  </div>
+  <Footer />
 </template>
 
 <script setup lang="ts">
