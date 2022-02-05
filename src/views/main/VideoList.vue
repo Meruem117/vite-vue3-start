@@ -69,7 +69,7 @@
         </div>
       </div>
       <!-- 分页 -->
-      <div class="flex justify-center mt-6" @click="getVideos(state.mid, state.current)">
+      <div class="flex justify-center mt-6" @click="handleChangePage">
         <a-pagination
           v-model:current="state.current"
           :total="Math.ceil(state.up.archive_count / VIDEO_LIST_SIZE) * 10"
@@ -128,6 +128,10 @@ const state: stateItem = reactive({
 async function init(): Promise<void> {
   state.mid = route.params.mid.toString()
   state.up = await getUpDetail(state.mid)
+  state.videos[state.current - 1] = await getVideos(state.mid, state.current)
+}
+
+async function handleChangePage(): Promise<void> {
   state.videos[state.current - 1] = await getVideos(state.mid, state.current)
 }
 
