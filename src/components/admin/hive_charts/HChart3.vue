@@ -8,7 +8,7 @@
           class="w-full h-5/6 overflow-auto rounded bg-gray-100 border border-solid border-gray-200 shadow-inner"
         >
           <div
-            v-for="video,index in state.list"
+            v-for="video, index in state.list"
             :key="index"
             :title="video.author + ' - ' + video.title + ' - ' + video.bvid"
             @click="toVideo(video.author, video.bvid)"
@@ -36,8 +36,8 @@ import * as echarts from 'echarts/core'
 import { TitleComponent, TooltipComponent, ToolboxComponent, LegendComponent } from 'echarts/components'
 import { TreemapChart, FunnelChart, ScatterChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
-import { hResultItem4 } from '@/models/chart'
-import { logItem } from '@/models/log'
+import type { hResultItem4 } from '@/models/chart'
+import type { logItem } from '@/models/log'
 import { getHResult4 } from '@/services/chart'
 import { addLog } from '@/services/log'
 import { roundFun, convertPlay } from '@/utils'

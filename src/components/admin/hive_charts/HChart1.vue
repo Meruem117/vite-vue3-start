@@ -11,7 +11,7 @@ import * as echarts from 'echarts/core'
 import { TitleComponent, TooltipComponent, ToolboxComponent, GridComponent, MarkLineComponent, LegendComponent } from 'echarts/components'
 import { LineChart, RadarChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
-import { hResultItem2 } from '@/models/chart'
+import type { hResultItem2 } from '@/models/chart'
 import { getHResult2 } from '@/services/chart'
 
 echarts.use(

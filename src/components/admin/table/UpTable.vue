@@ -64,14 +64,9 @@
 import { reactive, onMounted, toRaw, ref, Ref, UnwrapRef } from 'vue'
 import { cloneDeep } from 'lodash'
 import { Form } from 'ant-design-vue'
-//? import { upItem } from '@/models/up'
+import type { upItem } from '@/models/up'
 import { getAllUps, addUp, updateUp, deleteUp } from '@/services/up'
 
-interface upItem {
-  id: number,
-  mid: string,
-  name: string
-}
 interface stateItem {
   data: upItem[],
   visible: boolean

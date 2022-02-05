@@ -35,7 +35,7 @@ import { reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { LinkOutlined } from '@ant-design/icons-vue'
 import Nav from '@/components/main/base/Nav.vue'
-import { upInfoItem } from '@/models/up'
+import type { upInfoItem } from '@/models/up'
 import { getUps, getUpInfo } from '@/services/up'
 import { UP_LIST_SIZE } from '@/constant'
 

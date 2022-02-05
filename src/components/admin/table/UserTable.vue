@@ -92,20 +92,10 @@
 import { reactive, onMounted, ref, Ref, UnwrapRef } from 'vue'
 import { cloneDeep } from 'lodash'
 import Regist from '@/components/main/user/Regist.vue'
-//? import { userDetailItem } from '@/models/user'
+import type { userDetailItem } from '@/models/user'
 import { getAllUsers, updateUser, deleteUser } from '@/services/user'
 import { ROLES, GENDER } from '@/constant'
 
-interface userDetailItem {
-  id?: number,
-  name: string,
-  password: string,
-  role: string,
-  location: string,
-  birthday: string,
-  gender: string,
-  created?: string
-}
 interface stateItem {
   data: userDetailItem[],
   visible: boolean

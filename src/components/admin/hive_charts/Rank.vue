@@ -5,7 +5,7 @@
     </h1>
     <div class="grid grid-cols-2 gap-5 w-full">
       <div
-        v-for="video,id in state.videos"
+        v-for="video, id in state.videos"
         class="flex w-full h-auto p-3 justify-start cursor-pointer hover:shadow-2xl hover:text-blue-400"
         @click="toVideo(video.author, video.bvid)"
       >
@@ -50,8 +50,8 @@ import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { key } from '@/store/store'
 import { SignalFilled, UserOutlined, PlaySquareFilled, ProfileOutlined } from '@ant-design/icons-vue'
-import { hResultItem3 } from '@/models/chart'
-import { logItem } from '@/models/log'
+import type { hResultItem3 } from '@/models/chart'
+import type { logItem } from '@/models/log'
 import { getHResult3 } from '@/services/chart'
 import { addLog } from '@/services/log'
 import { convertPlay } from '@/utils'

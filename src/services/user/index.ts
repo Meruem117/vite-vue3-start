@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { userDetailItem, userCheckItem } from '@/models/user'
+import type { userDetailItem, userCheckItem } from '@/models/user'
 import { USER_LIST_SIZE } from '@/constant'
 
 export async function getUsers(start: number, size: number = USER_LIST_SIZE): Promise<userDetailItem[]> {

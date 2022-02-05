@@ -1,6 +1,6 @@
 import { InjectionKey } from 'vue'
 import { createStore, useStore as baseUseStore, Store } from 'vuex'
-import { userItem } from '@/models/user'
+import type { userItem } from '@/models/user'
 
 export interface State {
     isLogin: boolean,

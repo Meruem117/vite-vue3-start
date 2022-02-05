@@ -51,7 +51,7 @@
 import { reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { StopOutlined } from '@ant-design/icons-vue'
-import { videoDetailItem } from '@/models/video'
+import type { videoDetailItem } from '@/models/video'
 import { getVideoDetail } from '@/services/video'
 import { convertNumber, convertTime } from '@/utils'
 

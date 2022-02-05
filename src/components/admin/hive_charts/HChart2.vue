@@ -4,7 +4,7 @@
     <div class="text-xl w-1/5">
       <div class="text-xl font-semibold mb-5">视频总数排名</div>
       <div
-        v-for="up,index in state.totalData"
+        v-for="up, index in state.totalData"
         :key="index"
         class="flex flex-row justify-start mb-4"
       >
@@ -31,7 +31,7 @@ import * as echarts from 'echarts/core'
 import { TitleComponent, TooltipComponent, ToolboxComponent, GridComponent, LegendComponent } from 'echarts/components'
 import { BarChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
-import { hResultItem2 } from '@/models/chart'
+import type { hResultItem2 } from '@/models/chart'
 import { getHResult2 } from '@/services/chart'
 
 echarts.use(

@@ -7,7 +7,7 @@
         v-model:value="state.n"
         :min="1"
         :max="40"
-        @change="changeN()"
+        @change="changeN"
       />
       <div class="text-lg font-medium align-middle p-0.5 text-gray-600">日期:</div>
       <a-select
@@ -15,7 +15,7 @@
         style="width: 120px"
         @focus="focus"
         ref="select"
-        @change="changeSelect()"
+        @change="changeSelect"
       >
         <a-select-option v-for="tm in state.time" :value="tm">{{ tm }}</a-select-option>
       </a-select>

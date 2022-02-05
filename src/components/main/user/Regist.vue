@@ -62,7 +62,7 @@ import { key } from '@/store/store'
 import { notification } from 'ant-design-vue'
 import { RuleObject, ValidateErrorEntity } from 'ant-design-vue/es/form/interface'
 import { Moment } from 'moment'
-import { userDetailItem } from '@/models/user'
+import type { userDetailItem } from '@/models/user'
 import { addUser, userExistByName } from '@/services/user'
 import { ROLES, GENDER, DEFAULT_LOCATION, DEFAULT_BIRTHDAY, DEFAULT_DATE_FORMAT, CITY_LIST } from '@/constant'
 

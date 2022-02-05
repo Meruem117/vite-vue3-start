@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { mResultItem, hResultItem1, hResultItem2, hResultItem3, hResultItem4 } from '@/models/chart'
+import type { mResultItem, hResultItem1, hResultItem2, hResultItem3, hResultItem4 } from '@/models/chart'
 
 export async function getHResult1(): Promise<hResultItem1[]> {
   const response = await axios.get('/api/chart/getHResult1')
