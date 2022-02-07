@@ -1,5 +1,6 @@
 import { InjectionKey } from 'vue'
 import { createStore, useStore as baseUseStore, Store } from 'vuex'
+import VuexPersistence from 'vuex-persist'
 import type { userItem } from '@/models/user'
 
 export interface State {
@@ -23,7 +24,8 @@ export const store = createStore<State>({
         clearUser(state: State): void {
             state.user = {}
         }
-    }
+    },
+    plugins: [new VuexPersistence().plugin]
 })
 
 export function useStore(): Store<State> {
