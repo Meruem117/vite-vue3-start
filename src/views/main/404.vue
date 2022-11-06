@@ -1,11 +1,6 @@
 <template>
   <Nav />
-  <a-result
-    status="404"
-    title="404"
-    sub-title="Sorry, the page you visited does not exist."
-    class="mt-16"
-  >
+  <a-result status="404" title="404" sub-title="Sorry, the page you visited does not exist." class="mt-16">
     <template #extra>
       <router-link to="/home">
         <a-button type="primary">Back Home</a-button>

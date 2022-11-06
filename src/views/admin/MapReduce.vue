@@ -13,28 +13,15 @@
       <div class="flex">
         <!-- 生成日志 -->
         <div class="flex space-x-2" v-if="state.current === 0">
-          <a-input-number
-            id="inputNumberMapReduce"
-            v-model:value="state.number"
-            :min="100"
-            :max="10000"
-          />
-          <a-button
-            type="primary"
-            :loading="state.isLoading[0]"
-            @click="generateLogs(state.number)"
-            class="w-40"
-          >生成日志</a-button>
+          <a-input-number id="inputNumberMapReduce" v-model:value="state.number" :min="100" :max="10000" />
+          <a-button type="primary" :loading="state.isLoading[0]" @click="generateLogs(state.number)" class="w-40">生成日志
+          </a-button>
         </div>
         <!-- Flume导出到HDFS -->
         <div class="flex flex-col space-y-3" v-if="state.current === 1">
           <div class="flex space-x-2">
-            <a-button
-              type="primary"
-              :loading="state.isLoading[0]"
-              @click="flumeToHdfs"
-              class="w-40"
-            >Flume导出到HDFS</a-button>
+            <a-button type="primary" :loading="state.isLoading[0]" @click="flumeToHdfs" class="w-40">Flume导出到HDFS
+            </a-button>
             <!-- 查看日志目录下文件 -->
             <a-button type="primary" @click="ls(state.path)" class="w-40">查看</a-button>
           </div>
@@ -43,22 +30,14 @@
         <!-- MapReduce分析 -->
         <div class="flex space-x-2" v-if="state.current === 2">
           <a-input v-model:value="state.input" placeholder="input path" />
-          <a-button
-            type="primary"
-            :loading="state.isLoading[0]"
-            @click="mapreduce(state.input)"
-            class="w-40"
-          >MapReduce分析</a-button>
+          <a-button type="primary" :loading="state.isLoading[0]" @click="mapreduce(state.input)" class="w-40">
+            MapReduce分析</a-button>
         </div>
         <!-- Sqoop导出到MySQL -->
         <div class="flex space-x-2" v-if="state.current === 3">
           <a-input v-model:value="state.output" placeholder="hdfs path" />
-          <a-button
-            type="primary"
-            :loading="state.isLoading[0]"
-            @click="sqoopToMysql(state.output)"
-            class="w-40"
-          >Sqoop导出到MySQL</a-button>
+          <a-button type="primary" :loading="state.isLoading[0]" @click="sqoopToMysql(state.output)" class="w-40">
+            Sqoop导出到MySQL</a-button>
         </div>
         <!-- 结束 -->
         <div class="text-xl tracking-wider" v-if="state.current === 4">Finished</div>

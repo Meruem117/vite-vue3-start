@@ -12,23 +12,12 @@
         <p class="inline ml-1">·</p>
         <p class="inline ml-1">{{ convertNumber(state.video.stat.reply) }}评论</p>
         <p class="inline ml-4">{{ convertTime(state.video.pubdate) }}</p>
-        <p
-          class="inline ml-4"
-          v-if="state.video.stat.his_rank"
-        >全站排行榜最高第{{ state.video.stat.his_rank }}名</p>
+        <p class="inline ml-4" v-if="state.video.stat.his_rank">全站排行榜最高第{{ state.video.stat.his_rank }}名</p>
       </div>
-      <iframe
-        class="flex w-full text-left flex-nowrap"
-        height="720px"
-        border="0"
-        scrolling="no"
-        frameborder="no"
-        framespacing="0"
-        :src="`https://player.bilibili.com/player.html?bvid=${state.bvid}`"
-      ></iframe>
+      <iframe class="flex w-full text-left flex-nowrap" height="720px" border="0" scrolling="no" frameborder="no"
+        framespacing="0" :src="`https://player.bilibili.com/player.html?bvid=${state.bvid}`"></iframe>
       <div
-        class="flex justify-start p-1 mt-3 h-auto w-full border-b border-solid border-t-0 border-l-0 border-r-0 border-gray-200"
-      >
+        class="flex justify-start p-1 mt-3 h-auto w-full border-b border-solid border-t-0 border-l-0 border-r-0 border-gray-200">
         <img src="@/assets/icons/like.png" class="icon" title="like" />
         <p class="icon-text">{{ convertNumber(state.video.stat.like) }}</p>
         <img src="@/assets/icons/coin.png" class="icon" title="coin" />
@@ -99,12 +88,14 @@ onMounted(() => init())
   width: 28px;
   height: 28px;
 }
+
 .icon-text {
   padding: 4px;
   margin-left: 4px;
   margin-right: 32px;
   color: gray;
 }
+
 .video-desc {
   -webkit-line-clamp: 2;
 }

@@ -1,14 +1,8 @@
 <template>
   <div class="h-16 w-full flex fixed top-0 pt-2 pl-2 shadow-xl bg-white z-10"></div>
   <div class="h-full fixed left-0 bg-gray-100 tracking-widest text-lg z-20">
-    <a-menu
-      class="adminMenu"
-      mode="inline"
-      theme="dark"
-      :openKeys="state.openKeys"
-      v-model:selectedKeys="state.selectedKeys"
-      @openChange="onOpenChange"
-    >
+    <a-menu class="adminMenu" mode="inline" theme="dark" :openKeys="state.openKeys"
+      v-model:selectedKeys="state.selectedKeys" @openChange="onOpenChange">
       <div class="flex align-middle text-3xl pl-3 pt-4 font-semibold text-white h-16">Admin</div>
       <a-menu-item key="home">
         <router-link to="/admin/home">

@@ -9,14 +9,8 @@
           <p class="text-base" v-if="store.state.user.location">地区: {{ store.state.user.location }}</p>
           <p class="text-base" v-else>地区: 保密</p>
         </div>
-        <a-popconfirm
-          title="Are you sure to logout?"
-          placement="left"
-          ok-text="Yes"
-          cancel-text="No"
-          @confirm="confirmLogout"
-          @cancel="cancelLogout"
-        >
+        <a-popconfirm title="Are you sure to logout?" placement="left" ok-text="Yes" cancel-text="No"
+          @confirm="confirmLogout" @cancel="cancelLogout">
           <a-button type="danger" class="w-full">Logout</a-button>
         </a-popconfirm>
       </template>
@@ -24,46 +18,23 @@
         <p class="text-base h-2">Nothing here</p>
       </template>
       <!-- 头像 -->
-      <a-avatar
-        size="large"
-        class="cursor-pointer"
-        @click="showModal"
-        v-if="store.state.isLogin === false"
-      >
+      <a-avatar size="large" class="cursor-pointer" @click="showModal" v-if="store.state.isLogin === false">
         <template #icon>
           <UserOutlined />
         </template>
       </a-avatar>
-      <div
-        class="cursor-pointer text-xl p-0.5 tracking-wide font-semibold"
-        @click="toMySpace"
-        v-else
-      >{{ store.state.user.name }}</div>
+      <div class="cursor-pointer text-xl p-0.5 tracking-wide font-semibold" @click="toMySpace" v-else>{{
+          store.state.user.name
+      }}</div>
     </a-popover>
     <!-- 注册 -->
-    <a-modal
-      title="Regist"
-      v-model:visible="state.showModal"
-      v-if="state.showRegist"
-      keyboard="true"
-      okType="link"
-      okText="Login"
-      :onOk="handleShowRegist"
-      class="registModal"
-    >
+    <a-modal title="Regist" v-model:visible="state.showModal" v-if="state.showRegist" keyboard="true" okType="link"
+      okText="Login" :onOk="handleShowRegist" class="registModal">
       <Regist @closeModal="closeModal" />
     </a-modal>
     <!-- 登录 -->
-    <a-modal
-      title="Login"
-      v-model:visible="state.showModal"
-      v-else
-      keyboard="true"
-      okType="link"
-      okText="Regist"
-      :onOk="handleShowRegist"
-      class="loginModal"
-    >
+    <a-modal title="Login" v-model:visible="state.showModal" v-else keyboard="true" okType="link" okText="Regist"
+      :onOk="handleShowRegist" class="loginModal">
       <Login @closeModal="closeModal" />
     </a-modal>
   </div>
@@ -125,9 +96,11 @@ function toMySpace(): void {
 .loginModal {
   top: 20%;
 }
+
 .registModal {
   top: 15%;
 }
+
 .registModal {
   top: 15%;
 }
