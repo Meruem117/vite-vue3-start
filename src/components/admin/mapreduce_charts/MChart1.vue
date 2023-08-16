@@ -13,7 +13,6 @@
       <a-select
         v-model:value="state.select"
         style="width: 120px"
-        @focus="focus"
         ref="select"
         @change="changeSelect"
       >
